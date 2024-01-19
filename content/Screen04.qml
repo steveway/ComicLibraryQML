@@ -16,6 +16,7 @@ Rectangle {
     //id: rectangle
     //objectName: "pdf_screen_rect"
     // property int destinedPage: 0
+    property var selectedBook
     width: Constants.width
     height: Constants.height
 
@@ -29,25 +30,32 @@ Rectangle {
         height: menu_bar.y - 5
         visible: true
         objectName: "folder_thumbnail_list"
+
         model: FolderListModel {// Empty model initially
             id: folderModel
             nameFilters: ["*pdf"]
             showDirs: false
-            onStatusChanged: {
-
-                if (folderModel.status == FolderListModel.Ready) {
-                    console.log('Loaded')
-                    console.log(folderModel.folder)
-                }
-            }
         }
-        delegate: Item {
+        Component {
+            id: fileDelegate
+            Item{
             //border.color: "black"
             id: cell_item
 
             width: folder_list_thumbnail_grid.cellWidth
             height: folder_list_thumbnail_grid.cellHeight
             objectName: fileName
+            property string thumb_folder: folderModel.folder + "/thumbnails/"
+            property string conf_file: thumb_folder + fileName.slice(0, fileName.lastIndexOf(".")) + ".json"
+            property string pdf_file: fileUrl
+            property var json_data: null
+            function update_progress_bar(progress){
+                book_progress.value = progress
+            }
+
+            Component.onCompleted:{
+                json_data = read_progress_from_file(conf_file)
+            }
             Image {
                 id: thumb_image
                 height: cell_item.height / 1.5625
@@ -56,14 +64,36 @@ Rectangle {
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: folderModel.folder + "/thumbnails/" + fileName.slice(0, -4) + ".png"
+                source: folderModel.folder + "/thumbnails/" + fileName.slice(0, fileName.lastIndexOf(".")) + ".png"
+
+
                 MouseArea {
                     id: thumb_click
                     anchors.fill: parent
-                    // onClicked :App {
-                    //     selectedBook = model.pdf_file
-                    //     backend.openComic(model.pdf_file)
-                    // }
+                    onClicked : {
+                        selectedBook = cell_item
+                        //selectedBook = model.pdf_file
+                        //backend.openComic(model.pdf_file)
+                        //console.log(mainWindow)
+                        console.log(thumb_image)
+                        console.log(thumb_image.source)
+                        console.log(fileName)
+                        console.log(pdf_file)
+                        for (var i = 0; i<pdf_screen.children.length; ++i){
+                            console.log(pdf_screen.children[i].objectName)
+                            if(pdf_screen.children[i].objectName === "pdf_view"){
+                                console.log(pdf_screen.children[i].document)
+                                pdf_screen.children[i].document.source = fileUrl
+                                console.log(parent)
+                                swipeView.setCurrentIndex(1)
+                                pdf_screen.destinedPage = json_data.page
+                                pdf_screen.children[i].goToPage(json_data.page)
+                                pdf_screen.destinedPage = json_data.page
+                                // console.log(pdf_screen.children[i])
+                                // pdf_screen.children[i].page_changer.start()
+                            }
+                        }
+                    }
                 }
                 Rectangle {
                     id: background_rect
@@ -80,18 +110,18 @@ Rectangle {
                     radius: 2
                 }
 
-                // ProgressBar {
-                //     id: book_progress
-                //     objectName: "book_progress"
-                //     y: thumb_image.y + thumb_image.height
-                //     width: parent.width - (parent.width / 15)
-                //     height: (cell_item.height - y) / 3
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     to: 100.0
-                //     from: 0.0
-                //     value: model.progress
-                //     //Material.accent: Material.DeepOrange
-                // }
+                ProgressBar {
+                    id: book_progress
+                    objectName: "progress_" + fileName
+                    y: thumb_image.y + thumb_image.height
+                    width: parent.width - (parent.width / 15)
+                    height: (cell_item.height - y) / 3
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    to: 100.0
+                    from: 0.0
+                    value: json_data.progress
+                    //Material.accent: Material.DeepOrange
+                }
                 Text {
                     id: thumb_label
                     //x : parent.x - width / 1.5
@@ -130,11 +160,27 @@ Rectangle {
                 shadowHorizontalOffset: 3
             }
         }
-
+        }
 
         cellHeight: 200
         cellWidth: 200
+        delegate: fileDelegate
     }
 
+    function read_progress_from_file(file_path){
+        console.log(file_path)
+        return fileio.read_json(file_path)
+    }
+
+    function write_progress_to_file(file_path, modified_data) {
+        console.log(file_path);
+        console.log(modified_data);
+
+        // Convert the modified data to JSON string
+        var jsonString = JSON.stringify(modified_data);
+
+        // Call the write function from FileIO
+        fileio.write(file_path, jsonString);
+    }
 
 }

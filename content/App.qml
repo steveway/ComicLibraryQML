@@ -122,6 +122,8 @@ Window {
             onAccepted: {
                 //file_manager.file_url = fileDialog.currentFolder  // <---
                 check_for_thumbnail_folder(fileDialog.currentFolder)
+                animation_out.start()
+                menu_bar.hidden = true
             }
         }
     function check_for_thumbnail_folder(folder_path){

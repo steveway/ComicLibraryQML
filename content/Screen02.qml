@@ -12,11 +12,17 @@ import CLC
 Rectangle {
     id: rectangle
     objectName: "pdf_screen_rect"
-    // property int destinedPage: 0
+    property int destinedPage: 0
     width: Constants.width
     height: Constants.height
 
     color: Constants.backgroundColor
+
+    onDestinedPageChanged: {
+        console.log("page changed")
+        console.log(destinedPage)
+        page_changer.start()
+    }
 
     PdfMultiPageView {
         objectName: "pdf_view"
@@ -25,10 +31,23 @@ Rectangle {
 
             /^(file:\/+|qrc:\/+|http:\/+)(?=[A-Z])(?=[^:])|^(file:\/+|qrc:\/+|http:\/+)(?=(\/|$))/
             var big_regex = /^(file:\/+|qrc:\/+|http:\/+)(?=[A-Z])(?=[^:])|^(file:\/+|qrc:\/+|http:\/+)(?=(\/|$))/
-            backend.pageChanged(currentPage,
-                                decodeURIComponent(document.source.toString(
-                                                       ).replace(big_regex,
-                                                                 "")))
+            console.log("Changing Page:")
+            console.log(currentPage)
+            console.log(folder_list)
+            console.log(folder_list.selectedBook.json_data.page)
+            console.log(folder_list.selectedBook.json_data.progress)
+            folder_list.selectedBook.json_data.page = currentPage
+            console.log(folder_list.selectedBook.json_data.page)
+            folder_list.selectedBook.json_data.progress = (currentPage / document.pageCount) * 100
+            console.log(folder_list.selectedBook.json_data.progress)
+            console.log(folder_list.selectedBook.conf_file)
+            folder_list.selectedBook.update_progress_bar((currentPage / document.pageCount) * 100)
+            folder_list.write_progress_to_file(folder_list.selectedBook.conf_file, folder_list.selectedBook.json_data)
+
+            // backend.pageChanged(currentPage,
+            //                     decodeURIComponent(document.source.toString(
+            //                                            ).replace(big_regex,
+            //                                                      "")))
         }
         id: pdf_view
         x: 5
@@ -41,7 +60,9 @@ Rectangle {
             source: "../books/my.pdf"
             objectName: "pdf_document"
         }
+
     }
+
 
 
     Button {
@@ -115,28 +136,30 @@ Rectangle {
         // anchors.horizontalCenter: scale_width.anchors.horizontalCenter
         // y: scale_width.y
     }
+    Timer {
+        id: page_changer
+        objectName: "page_changer"
+        interval: 500
+        running: false
+        repeat: false
+        onTriggered: {
+            console.log("using timer to jump")
+            console.log(destinedPage)
+            while (pdf_view.currentPageRenderingStatus == Image.Null
+                   || pdf_view.currentPageRenderingStatus == Image.Loading) {
+                fileio.updateUI()
+            }
+            pdf_view.goToLocation(destinedPage, Qt.point(0,0), 1)
+            pdf_view.goToPage(destinedPage)
+            fileio.updateUI()
+            while (pdf_view.currentPageRenderingStatus == Image.Null
+                   || pdf_view.currentPageRenderingStatus == Image.Loading) {
+                fileio.updateUI()
+            }
+        }
+    }
 
-    // Timer {
-    //     id: page_changer
-    //     interval: 200
-    //     running: false
-    //     repeat: false
-    //     onTriggered: {
-    //         console.log("using timer to jump")
-    //         console.log(destinedPage)
-    //         while (pdf_view.currentPageRenderingStatus == Image.Null
-    //                || pdf_view.currentPageRenderingStatus == Image.Loading) {
-    //             backend.updateUI()
-    //         }
-    //         //pdf_view.goToLocation(destinedPage, Qt.point(0,0), 1)
-    //         pdf_view.goToPage(destinedPage)
-    //         backend.updateUI()
-    //         while (pdf_view.currentPageRenderingStatus == Image.Null
-    //                || pdf_view.currentPageRenderingStatus == Image.Loading) {
-    //             backend.updateUI()
-    //         }
-    //     }
-    // }
+
     // Connections {
     //     target: backend
     //     function onManualPageChange(arg1) {
