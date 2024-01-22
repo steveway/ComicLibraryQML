@@ -19,7 +19,6 @@ Rectangle {
     property var selectedBook
     width: Constants.width
     height: Constants.height
-
     color: Constants.backgroundColor
     GridView {
         id: folder_list_thumbnail_grid
@@ -170,6 +169,17 @@ Rectangle {
         cellHeight: 200
         cellWidth: 200
         delegate: fileDelegate
+
+        ScrollBar.vertical: ScrollBar {
+            id: scrollbar_thumbs
+            parent: folder_list_thumbnail_grid
+            anchors.right: folder_list_thumbnail_grid.right
+            //anchors.bottom:library_thumbnails.bottom - 20
+            //y: library_thumbnails.visibleArea.yPosition * library_thumbnails.height
+            //width: 10
+            //height: library_thumbnails.visibleArea.heightRatio * library_thumbnails.height
+            //color: Material.accent
+        }
     }
 
     function read_progress_from_file(file_path){

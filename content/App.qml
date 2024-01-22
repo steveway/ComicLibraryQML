@@ -19,8 +19,8 @@ Window {
         anchors.left: parent.left
         currentIndex: tabBar.currentIndex
 
-        Screen01 {
-        id: thumbnail_screen
+        Screen04 {
+        id: folder_list
         }
         Screen02 {
         id: pdf_screen
@@ -47,9 +47,6 @@ Window {
                     }
                 }
             }
-        }
-        Screen04 {
-            id: folder_list
         }
     }
     SequentialAnimation {
@@ -78,9 +75,9 @@ Window {
             text: qsTr("Settings")
             width: implicitWidth
         }
-        TabButton{
-            text: qsTr("FolderList")
-        }
+        // TabButton{
+        //     text: qsTr("FolderList")
+        // }
     }
 
     ToolBar {
