@@ -1,5 +1,5 @@
-import QtQuick 6.6
-import QtQuick.Controls 6.6
+import QtQuick
+import QtQuick.Controls
 import QtQuick.Pdf
 //import Qt5Compat.GraphicalEffects
 import QtQuick.Effects

@@ -48,12 +48,17 @@ Rectangle {
             property string thumb_folder: folderModel.folder + "/thumbnails/"
             property string conf_file: thumb_folder + fileName.slice(0, fileName.lastIndexOf(".")) + ".json"
             property string pdf_file: fileUrl
+            property string thumbnail_path: folderModel.folder + "/thumbnails/" + fileName.slice(0, fileName.lastIndexOf(".")) + ".png"
             property var json_data: null
             function update_progress_bar(progress){
                 book_progress.value = progress
             }
 
             Component.onCompleted:{
+                if(!fileio.does_file_exist(thumbnail_path)){
+                    fileio.create_thumbnail(pdf_file, thumbnail_path, thumb_image.height)
+                }
+                thumb_image.source = thumbnail_path
                 json_data = read_progress_from_file(conf_file)
             }
             Image {
@@ -64,7 +69,7 @@ Rectangle {
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
                 anchors.horizontalCenter: parent.horizontalCenter
-                source: folderModel.folder + "/thumbnails/" + fileName.slice(0, fileName.lastIndexOf(".")) + ".png"
+                //source: thumbnail_path
 
 
                 MouseArea {
@@ -127,11 +132,11 @@ Rectangle {
                     //x : parent.x - width / 1.5
                     y: background_rect.y //+ book_progress.height
                     width: cell_item.width - (cell_item.width / 20)
-                    height: (cell_item.height - (thumb_image.height)) //+ book_progress.height))
+                    height: (cell_item.height - thumb_image.height - book_progress.height) //+ book_progress.height))
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: background_rect.verticalCenter
                     text: fileBaseName
-                    fontSizeMode: Text.HorizontalFit
+                    fontSizeMode: Text.Fit
                     wrapMode: Text.Wrap
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
