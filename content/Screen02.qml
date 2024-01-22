@@ -139,7 +139,7 @@ Rectangle {
     Timer {
         id: page_changer
         objectName: "page_changer"
-        interval: 500
+        interval: 100
         running: false
         repeat: false
         onTriggered: {
@@ -149,9 +149,11 @@ Rectangle {
                    || pdf_view.currentPageRenderingStatus == Image.Loading) {
                 fileio.updateUI()
             }
-            pdf_view.goToLocation(destinedPage, Qt.point(0,0), 1)
+            // pdf_view.goToLocation(destinedPage, Qt.point(0,0), 1)
             pdf_view.goToPage(destinedPage)
-            fileio.updateUI()
+            while (pdf_view.currentPage !== destinedPage){
+                fileio.updateUI()
+            }
             while (pdf_view.currentPageRenderingStatus == Image.Null
                    || pdf_view.currentPageRenderingStatus == Image.Loading) {
                 fileio.updateUI()

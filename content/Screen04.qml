@@ -92,8 +92,8 @@ Rectangle {
                                 console.log(parent)
                                 swipeView.setCurrentIndex(1)
                                 pdf_screen.destinedPage = json_data.page
-                                pdf_screen.children[i].goToPage(json_data.page)
-                                pdf_screen.destinedPage = json_data.page
+                                //pdf_screen.children[i].goToPage(json_data.page)
+                                //pdf_screen.destinedPage = json_data.page
                                 // console.log(pdf_screen.children[i])
                                 // pdf_screen.children[i].page_changer.start()
                             }
