@@ -13,8 +13,10 @@ if (Qt6_VERSION VERSION_GREATER_EQUAL 6.3)
     qt_standard_project_setup()
 endif()
 
-qt_add_executable(CLCApp src/main.cpp
-    src/fileio.h src/fileio.cpp)
+qt_add_executable(CLCApp WIN32 src/main.cpp
+    src/fileio.h src/fileio.cpp
+    content/peruse.ico
+    content/myapp.rc)
 
 qt_add_resources(CLCApp "configuration"
     PREFIX "/"

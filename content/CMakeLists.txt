@@ -14,4 +14,6 @@ qt6_add_qml_module(content
         Screen04.qml
     RESOURCES
         fonts/fonts.txt
+        RESOURCES peruse.ico
+        RESOURCES myapp.rc
 )
