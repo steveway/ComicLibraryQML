@@ -61,13 +61,18 @@ public slots:
             //     return false;
             // }
             QPdfDocument pdf_document;
+            //updateUI();
             pdf_document.load(file_path.toLocalFile());
+            //updateUI();
             float bigger_size = std::max(pdf_document.pagePointSize(0).width(), pdf_document.pagePointSize(0).height());
             float pdf_image_divider = bigger_size / thumb_max_size;
             QSize pdf_size(pdf_document.pagePointSize(0).width() / pdf_image_divider,
-                pdf_document.pagePointSize(0).height() / pdf_image_divider);
+                           pdf_document.pagePointSize(0).height() / pdf_image_divider);
+            //updateUI();
             QImage page(pdf_document.render(0, pdf_size));
+            //updateUI();
             page = page.scaledToHeight(thumb_max_size, Qt::TransformationMode::SmoothTransformation);
+            //updateUI();
             page.save(thumb_image_path.toLocalFile());
         }
         else{

@@ -20,27 +20,27 @@ Window {
         currentIndex: tabBar.currentIndex
 
         Screen04 {
-        id: folder_list
+            id: folder_list
         }
         Screen02 {
-        id: pdf_screen
+            id: pdf_screen
         }
         Item {
             id: config_screen
             Rectangle {
-                width : mainWindow.width
-                height : mainWindow.height
-                color : Constants.backgroundColor
+                width: mainWindow.width
+                height: mainWindow.height
+                color: Constants.backgroundColor
                 Button {
-                    text: (menu_bar.hidden) ? qsTr("Show Menu Bar") : qsTr("Hide Menu Bar")
-                    anchors.horizontalCenter : parent.horizontalCenter
-                    anchors.verticalCenter : parent.verticalCenter
+                    text: (menu_bar.hidden) ? qsTr("Show Menu Bar") : qsTr(
+                                                  "Hide Menu Bar")
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
                     onClicked: {
-                        if (menu_bar.hidden === false){
+                        if (menu_bar.hidden === false) {
                             menu_bar.hidden = true
                             animation_out.start()
-                        }
-                        else{
+                        } else {
                             animation_in.start()
                             menu_bar.hidden = false
                         }
@@ -51,11 +51,21 @@ Window {
     }
     SequentialAnimation {
         id: animation_out
-        NumberAnimation { target: menu_bar; property: "y"; to: mainWindow.height; duration: 500}
+        NumberAnimation {
+            target: menu_bar
+            property: "y"
+            to: mainWindow.height
+            duration: 500
+        }
     }
     SequentialAnimation {
         id: animation_in
-        NumberAnimation { target: menu_bar; property: "y"; to: mainWindow.height - menu_bar.height - 5; duration: 500}
+        NumberAnimation {
+            target: menu_bar
+            property: "y"
+            to: mainWindow.height - menu_bar.height - 5
+            duration: 500
+        }
     }
 
     TabBar {
@@ -107,26 +117,27 @@ Window {
             objectName: "progress_bar"
             from: 0
             to: 100
-        }
-
-
-    }
-    FileDialog {
-            id: fileDialog
-            objectName: "file_dialog"
-            visible: false
-            title: "Select the data directory"
-            onAccepted: {
-                //file_manager.file_url = fileDialog.currentFolder  // <---
-                check_for_thumbnail_folder(fileDialog.currentFolder)
-                animation_out.start()
-                menu_bar.hidden = true
+            onValueChanged: {
+                if (value == to) {
+                    animation_out.start()
+                    menu_bar.hidden = true
+                }
             }
         }
-    function check_for_thumbnail_folder(folder_path){
+    }
+    FileDialog {
+        id: fileDialog
+        objectName: "file_dialog"
+        visible: false
+        title: "Select the data directory"
+        onAccepted: {
+            //file_manager.file_url = fileDialog.currentFolder  // <---
+            check_for_thumbnail_folder(fileDialog.currentFolder)
+        }
+    }
+    function check_for_thumbnail_folder(folder_path) {
         console.log(folder_list.children)
         folder_list.children[0].model.folder = folder_path
         folder_list.children[0].model.rootFolder = folder_path
     }
-
 }

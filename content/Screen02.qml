@@ -1,3 +1,4 @@
+
 /*
 This is a UI file (.ui.qml) that is intended to be edited in Qt Design Studio only.
 It is supposed to be strictly declarative and only uses a subset of QML. If you edit
@@ -41,8 +42,11 @@ Rectangle {
             folder_list.selectedBook.json_data.progress = (currentPage / document.pageCount) * 100
             console.log(folder_list.selectedBook.json_data.progress)
             console.log(folder_list.selectedBook.conf_file)
-            folder_list.selectedBook.update_progress_bar((currentPage / document.pageCount) * 100)
-            folder_list.write_progress_to_file(folder_list.selectedBook.conf_file, folder_list.selectedBook.json_data)
+            folder_list.selectedBook.update_progress_bar(
+                        (currentPage / document.pageCount) * 100)
+            folder_list.write_progress_to_file(
+                        folder_list.selectedBook.conf_file,
+                        folder_list.selectedBook.json_data)
 
             // backend.pageChanged(currentPage,
             //                     decodeURIComponent(document.source.toString(
@@ -60,10 +64,7 @@ Rectangle {
             source: "../books/my.pdf"
             objectName: "pdf_document"
         }
-
     }
-
-
 
     Button {
         id: next_page
@@ -112,19 +113,18 @@ Rectangle {
         Connections {
             target: scale_width
             onClicked: if (scale_width.checked) {
-                       pdf_view.scaleToWidth(pdf_view.width - 100,
-                                             pdf_view.height - 100)
-                       //scale_width.text = "-"
-                   } else {
-                       pdf_view.scaleToPage(pdf_view.width - 100,
-                                            pdf_view.height - 100)
-                       //scale_width.text = "⛶"
-                   }
-               }
-
+                           pdf_view.scaleToWidth(pdf_view.width - 100,
+                                                 pdf_view.height - 100)
+                           //scale_width.text = "-"
+                       } else {
+                           pdf_view.scaleToPage(pdf_view.width - 100,
+                                                pdf_view.height - 100)
+                           //scale_width.text = "⛶"
+                       }
         }
-        //opacity: 0.8
+    }
 
+    //opacity: 0.8
     Label {
         //x: scale_width.x
         anchors.horizontalCenter: parent.horizontalCenter
@@ -151,7 +151,7 @@ Rectangle {
             }
             // pdf_view.goToLocation(destinedPage, Qt.point(0,0), 1)
             pdf_view.goToPage(destinedPage)
-            while (pdf_view.currentPage !== destinedPage){
+            while (pdf_view.currentPage !== destinedPage) {
                 fileio.updateUI()
             }
             while (pdf_view.currentPageRenderingStatus == Image.Null
@@ -160,7 +160,6 @@ Rectangle {
             }
         }
     }
-
 
     // Connections {
     //     target: backend
