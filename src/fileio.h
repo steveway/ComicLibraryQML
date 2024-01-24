@@ -14,6 +14,11 @@
 #include <QDir>
 #include <QDebug>
 #include <QTimer>
+#include <QtWidgets/qgraphicseffect.h>
+#include <QtWidgets/QGraphicsScene>
+#include <QtWidgets/QGraphicsPixmapItem>
+#include <QtGui/QPainter>
+
 
 class FileIO : public QObject
 {
@@ -49,6 +54,22 @@ public slots:
     {
         QFileInfo file_info(file_path.toLocalFile());
         return file_info.exists();
+    };
+
+    QImage applyEffectToPics(QImage src, QGraphicsEffect *effect, int extent = 0)
+    {
+        if(src.isNull()) return QImage();   //No need to do anything else!
+        if(!effect) return src;             //No need to do anything else!
+        QGraphicsScene scene;
+        QGraphicsPixmapItem item;
+        item.setPixmap(QPixmap::fromImage(src));
+        item.setGraphicsEffect(effect);
+        scene.addItem(&item);
+        QImage res(src.size()+QSize(extent*2, extent*2), QImage::Format_ARGB32);
+        res.fill(Qt::transparent);
+        QPainter ptr(&res);
+        scene.render(&ptr, QRectF(), QRectF( -extent, -extent, src.width()+extent*2, src.height()+extent*2 ) );
+        return res;
     }
 
     bool create_thumbnail(const QUrl& file_path, const QUrl& thumb_image_path, float thumb_max_size){
@@ -71,10 +92,16 @@ public slots:
                            pdf_document.pagePointSize(0).height() / pdf_image_divider);
             //updateUI();
             QImage page(pdf_document.render(0, pdf_size));
+            // QGraphicsBlurEffect *blur = new QGraphicsBlurEffect;
+            // blur->setBlurRadius(8);
+            QGraphicsDropShadowEffect *dropshadow = new QGraphicsDropShadowEffect;
+            dropshadow->setBlurRadius(10);
+            //dropshadow->offset = QPointF()
+            QImage result = applyEffectToPics(page, dropshadow, 10);
             //updateUI();
-            page = page.scaledToHeight(thumb_max_size, Qt::TransformationMode::SmoothTransformation);
+            result = result.scaledToHeight(thumb_max_size, Qt::TransformationMode::SmoothTransformation);
             //updateUI();
-            page.save(thumb_image_path.toLocalFile());
+            result.save(thumb_image_path.toLocalFile());
         }
         else{
             qDebug() << "File already Exists!";

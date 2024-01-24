@@ -236,21 +236,21 @@ Rectangle {
                 //                        source: thumb_image
                 //                        cached: true
                 //                }
-                MultiEffect {
-                    source: thumb_image
-                    anchors.fill: thumb_image
-                    //autoPaddingEnabled: false
-                    //paddingRect: Qt.rect(cell_item.x, cell_item.y, cell_item.width - 1, cell_item.height - 1)
-                    shadowBlur: 0.7
-                    shadowEnabled: true
-                    shadowColor: "#80000000"
-                    shadowVerticalOffset: 3
-                    shadowHorizontalOffset: 3
-                }
+                // MultiEffect {
+                //     source: thumb_image
+                //     anchors.fill: thumb_image
+                //     //autoPaddingEnabled: false
+                //     //paddingRect: Qt.rect(cell_item.x, cell_item.y, cell_item.width - 1, cell_item.height - 1)
+                //     shadowBlur: 0.7
+                //     shadowEnabled: true
+                //     shadowColor: "#80000000"
+                //     shadowVerticalOffset: 3
+                //     shadowHorizontalOffset: 3
+                // }
             }
         }
 
-        cellHeight: 200
+        cellHeight: 300
         cellWidth: 200
         delegate: fileDelegate
 

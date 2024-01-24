@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 #include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
 {
     set_qt_environment();
 
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
     FileIO fileIO;
     Worker cpp;
     QThread cpp_thread;
