@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
+#include <QTimer>
 
 class FileIO : public QObject
 {

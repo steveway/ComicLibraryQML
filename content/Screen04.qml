@@ -18,12 +18,14 @@ Rectangle {
     //objectName: "pdf_screen_rect"
     // property int destinedPage: 0
     property var selectedBook
+    property int scrollindex: 0
     width: Constants.width
     height: Constants.height
     //anchors.bottom: menu_bar.top
     color: Constants.backgroundColor
     GridView {
         id: folder_list_thumbnail_grid
+        enabled: false
         x: parent.width / 400
         y: parent.height / 400
         width: parent.width - (parent.width / 200)
@@ -37,7 +39,32 @@ Rectangle {
             id: folderModel
             nameFilters: ["*pdf"]
             showDirs: false
+            // onStatusChanged:{
+            //     if (folderModel.status == FolderListModel.Ready){
+            //         scroll_through_list.start()
+            //     }
+            // }
         }
+
+        SequentialAnimation {
+            id: scroll_through_list
+            NumberAnimation {
+                target: scrollbar_thumbs
+                property: "position"
+                from: 0.0
+                to: 1.0
+                duration: 5000
+            }
+            NumberAnimation {
+                target: scrollbar_thumbs
+                property: "position"
+                from: 1.0
+                to: 0.0
+                duration: 5000
+            }
+        }
+
+
         Component {
             id: fileDelegate
             Item {
@@ -60,16 +87,62 @@ Rectangle {
                 function update_progress_bar(progress) {
                     book_progress.value = progress
                 }
+                Timer {
+                    id: thumbnail_generator
+                    objectName: "thumbnail_generator"
+                    interval: 0
+                    running: false
+                    repeat: false
+                    onTriggered: {
+                        if (!fileio.does_file_exist(thumbnail_path)) {
+                            fileio.create_thumbnail(pdf_file, thumbnail_path,
+                                                    thumb_image.height)
+                        }
+                        // thumb_image.source = thumbnail_path
+                        // json_data = read_progress_from_file(conf_file)
+                        progress_bar.to = folderModel.count
+                        progress_bar.value = progress_bar.value + 1
+                    }
+                }
+
+                Timer {
+                    id: set_thumb_path
+                    interval: 250
+                    running: false
+                    repeat: true
+                    onTriggered: {
+                        if(fileio.does_file_exist(thumbnail_path)){
+                            thumb_image.source = thumbnail_path
+                            set_thumb_path.stop()
+                        }
+                    }
+                }
 
                 Component.onCompleted: {
+                    thumbnail_generator.start()
+                    // thumb_image.source = thumbnail_path
+                    // set_thumb_path.start()
+                    json_data = read_progress_from_file(conf_file)
+                    progress_bar.to = folderModel.count
+                    progress_bar.value = progress_bar.value + 1
                     if (!fileio.does_file_exist(thumbnail_path)) {
                         fileio.create_thumbnail(pdf_file, thumbnail_path,
                                                 thumb_image.height)
                     }
                     thumb_image.source = thumbnail_path
-                    json_data = read_progress_from_file(conf_file)
-                    progress_bar.to = folderModel.count
-                    progress_bar.value = progress_bar.value + 1
+                    if (scrollindex < folder_list_thumbnail_grid.count){
+                        scrollindex = scrollindex + 1
+                        folder_list_thumbnail_grid.positionViewAtIndex(scrollindex, GridView.Visible)
+                    }
+                    else{
+                        folder_list_thumbnail_grid.enabled = true
+                        grey_overlay.enabled = false
+                        grey_overlay.visible = false
+                    }
+
+                    // cpp.create_thumbnail(pdf_file, thumbnail_path,
+                    //                         thumb_image.height)
+
                 }
                 Image {
                     id: thumb_image
@@ -191,6 +264,15 @@ Rectangle {
             //width: 10
             //height: library_thumbnails.visibleArea.heightRatio * library_thumbnails.height
             //color: Material.accent
+        }
+        Rectangle {
+            id: grey_overlay
+            width: folder_rectangle.width
+            height: folder_rectangle.height
+            x: folder_rectangle.x
+            y: folder_rectangle.y
+            color: "grey"
+            opacity: 0.5
         }
     }
 
