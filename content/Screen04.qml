@@ -53,14 +53,14 @@ Rectangle {
                 property: "position"
                 from: 0.0
                 to: 1.0
-                duration: 5000
+                duration: 500
             }
             NumberAnimation {
                 target: scrollbar_thumbs
                 property: "position"
                 from: 1.0
                 to: 0.0
-                duration: 5000
+                duration: 500
             }
         }
 
@@ -130,6 +130,7 @@ Rectangle {
                                                 thumb_image.height)
                     }
                     thumb_image.source = thumbnail_path
+                    //fileio.updateUI()
                     if (scrollindex < folder_list_thumbnail_grid.count){
                         scrollindex = scrollindex + 1
                         folder_list_thumbnail_grid.positionViewAtIndex(scrollindex, GridView.Visible)
@@ -206,7 +207,7 @@ Rectangle {
                         anchors.horizontalCenter: parent.horizontalCenter
                         to: 100.0
                         from: 0.0
-                        value: json_data.progress
+                        value: (json_data.progress !== undefined) ? json_data.progress : 0.0
                         //Material.accent: Material.DeepOrange
                     }
                     Text {
@@ -250,7 +251,7 @@ Rectangle {
             }
         }
 
-        cellHeight: 300
+        cellHeight: 200
         cellWidth: 200
         delegate: fileDelegate
 

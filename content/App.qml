@@ -125,17 +125,25 @@ Window {
             }
         }
     }
-    FileDialog {
+    FolderDialog {
         id: fileDialog
         objectName: "file_dialog"
         visible: false
         title: "Select the data directory"
+        //options: FolderDialog.ShowDirsOnly
+        //selectFolder: true
         onAccepted: {
             //file_manager.file_url = fileDialog.currentFolder  // <---
-            check_for_thumbnail_folder(fileDialog.currentFolder)
+            console.log("Selected")
+            console.log(fileDialog.selectedFolder)
+            console.log(fileDialog.currentFolder)
+            console.log(currentFolder)
+            check_for_thumbnail_folder(fileDialog.selectedFolder)
         }
     }
     function check_for_thumbnail_folder(folder_path) {
+        console.log("Opening folder:")
+        console.log(folder_path)
         console.log(folder_list.children)
         folder_list.children[0].model.folder = folder_path
         folder_list.children[0].model.rootFolder = folder_path
