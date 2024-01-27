@@ -18,6 +18,9 @@ int main(int argc, char *argv[])
     set_qt_environment();
 
     QApplication app(argc, argv);
+    app.setOrganizationName("Steveway");
+    app.setOrganizationDomain("steveway.pythonanywhere.org");
+    app.setApplicationName("ComicLibrary");
     FileIO fileIO;
     Worker cpp;
     QThread cpp_thread;

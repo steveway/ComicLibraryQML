@@ -4,9 +4,44 @@ import QtQuick.Dialogs
 import CLC
 
 Window {
-    width: Constants.width
-    height: Constants.height
+    width: AppSettings.windowWidth
+    height: AppSettings.windowHeight
+    x: AppSettings.windowX
+    y: AppSettings.windowY
+
+    property bool fullscreen: AppSettings.fullscreen
+    visibility: fullscreen ? Window.FullScreen : Window.Windowed
     id: mainWindow
+
+    onWidthChanged: {
+        AppSettings.windowWidth = mainWindow.width
+    }
+    onHeightChanged: {
+        AppSettings.windowHeight = mainWindow.height
+    }
+
+    onXChanged: {
+        console.log("Position changed:")
+        console.log(mainWindow.x)
+        console.log(mainWindow.y)
+        AppSettings.windowX = mainWindow.x
+    }
+    onYChanged: {
+        AppSettings.windowY = mainWindow.y
+    }
+
+    onVisibilityChanged: {
+        console.log("Visibility Changed:")
+        console.log(mainWindow.visibility)
+        console.log(Window.FullScreen)
+        console.log(Window.Windowed)
+        if(mainWindow.visibility === Window.FullScreen){
+            AppSettings.fullscreen = true
+        }
+        if(mainWindow.visibility === Window.Windowed){
+            AppSettings.fullscreen = false
+        }
+    }
 
     visible: true
 

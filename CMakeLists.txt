@@ -34,6 +34,8 @@ target_link_libraries(CLCApp PRIVATE
     Qt6::Widgets
 )
 
+set_source_files_properties(AppSettings.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 if (BUILD_QDS_COMPONENTS)
     include(${CMAKE_CURRENT_SOURCE_DIR}/qmlcomponents)
 endif()

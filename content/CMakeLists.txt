@@ -2,12 +2,17 @@
 ### Do not change
 
 qt_add_library(content STATIC)
+set_source_files_properties(AppSettings.qml
+    PROPERTIES
+        QT_QML_SINGLETON_TYPE true
+    )
 qt6_add_qml_module(content
     URI "content"
     VERSION 1.0
     RESOURCE_PREFIX "/qt/qml"
     QML_FILES
         App.qml
+        AppSettings.qml
         oldScreen01.ui.qml
         Screen01.qml
         Screen02.qml

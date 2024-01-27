@@ -9,7 +9,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Pdf
 import Qt.labs.folderlistmodel
-import QtQuick.Effects
+import QtQuick.Layouts
+// import QtQuick.Effects
 import CLC
 
 Rectangle {
@@ -67,7 +68,7 @@ Rectangle {
 
         Component {
             id: fileDelegate
-            Item {
+            ColumnLayout {
                 //border.color: "black"
                 id: cell_item
 
@@ -147,13 +148,13 @@ Rectangle {
                 }
                 Image {
                     id: thumb_image
-                    height: cell_item.height / 1.5625
-                    width: cell_item.width
-                    y: 0
+                    Layout.preferredHeight: cell_item.height / (cell_item.height / 128)// 1.5625
+                    //width: cell_item.width
+                    // y: 0
                     fillMode: Image.PreserveAspectFit
                     asynchronous: true
-                    anchors.horizontalCenter: parent.horizontalCenter
-
+                    //anchors.horizontalCenter: parent.horizontalCenter
+                    Layout.alignment: Qt.AlignHCenter
                     //source: thumbnail_path
                     MouseArea {
                         id: thumb_click
@@ -174,7 +175,7 @@ Rectangle {
                                     pdf_screen.children[i].document.source = fileUrl
                                     console.log(parent)
                                     swipeView.setCurrentIndex(1)
-                                    pdf_screen.destinedPage = json_data.page
+                                    pdf_screen.destinedPage = (json_data.page) ? json_data.page : 0
                                     //pdf_screen.children[i].goToPage(json_data.page)
                                     //pdf_screen.destinedPage = json_data.page
                                     // console.log(pdf_screen.children[i])
@@ -183,48 +184,70 @@ Rectangle {
                             }
                         }
                     }
+                }
                     Rectangle {
                         id: background_rect
-                        y: thumb_image.y + thumb_image.height + 5
-                        x: thumb_label.x
-                        width: thumb_label.width
-                        height: thumb_label.height
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        //y: thumb_image.y + thumb_image.height + 5
+                        //x: thumb_label.x
+                        //width: thumb_label.width
+                        //height: thumb_label.height
+                        //anchors.horizontalCenter: parent.horizontalCenter
                         //color: Material.background
                         gradient: Gradient.HeavyRain
+                        Layout.preferredHeight: thumb_image / 2
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
                         //opacity: 0.5
                         //border.color: "black"
                         //border.width: 5
                         radius: 2
-                    }
 
+                    ColumnLayout{
                     ProgressBar {
                         id: book_progress
                         objectName: "progress_" + fileName
-                        y: thumb_image.y + thumb_image.height
-                        width: parent.width - (parent.width / 15)
-                        height: (cell_item.height - y) / 3
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.preferredHeight: 12
+                        //y: thumb_image.y + thumb_image.height
+                        //width: parent.width - (parent.width / 15)
+                        //height: (cell_item.height - y) / 3
+                        //anchors.horizontalCenter: parent.horizontalCenter
                         to: 100.0
                         from: 0.0
                         value: (json_data.progress !== undefined) ? json_data.progress : 0.0
                         //Material.accent: Material.DeepOrange
                     }
+                    Item{
+                        Layout.fillHeight: true
+                        Layout.preferredHeight: background_rect.height - book_progress.height
+                        Layout.fillWidth: true
+                        //visible: false
+                        //color: "red"
+                    // }
                     Text {
                         id: thumb_label
+
                         //x : parent.x - width / 1.5
-                        y: background_rect.y //+ book_progress.height
-                        width: cell_item.width - (cell_item.width / 20)
-                        height: (cell_item.height - thumb_image.height
-                                 - book_progress.height) //+ book_progress.height))
+                        //y: background_rect.y //+ book_progress.height
+                        //width: cell_item.width - (cell_item.width / 20)
+                        //height: (cell_item.height - thumb_image.height
+                        //         - book_progress.height) //+ book_progress.height))
+                        width: parent.width
+                        height: parent.height
                         anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: background_rect.verticalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        //Layout.preferredHeight: 128
+                        //Layout.fillHeight: true
+                        //Layout.fillWidth: true
                         text: fileBaseName
                         fontSizeMode: Text.Fit
                         wrapMode: Text.Wrap
                         elide: Text.ElideRight
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
+                    }
+                    }
+
+
                     }
                 }
                 //                DropShadowApp {
@@ -278,7 +301,7 @@ Rectangle {
     }
 
     function read_progress_from_file(file_path) {
-        console.log(file_path)
+        //console.log(file_path)
         return fileio.read_json(file_path)
     }
 
