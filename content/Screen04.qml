@@ -20,10 +20,24 @@ Rectangle {
     // property int destinedPage: 0
     property var selectedBook
     property int scrollindex: 0
+    property int destinedIndex: 0
+    property bool loadingFinished: false
     width: Constants.width
     height: Constants.height
     //anchors.bottom: menu_bar.top
     color: Constants.backgroundColor
+    onDestinedIndexChanged: {
+        console.log("Moving Index to:")
+        console.log(destinedIndex)
+        while(!loadingFinished){
+            fileio.updateUI()
+        }
+        folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+        if(AppSettings.lastComic){
+
+        }
+    }
+
     GridView {
         id: folder_list_thumbnail_grid
         enabled: false
@@ -140,6 +154,7 @@ Rectangle {
                         folder_list_thumbnail_grid.enabled = true
                         grey_overlay.enabled = false
                         grey_overlay.visible = false
+                        loadingFinished = true
                     }
 
                     // cpp.create_thumbnail(pdf_file, thumbnail_path,
@@ -168,11 +183,18 @@ Rectangle {
                             console.log(thumb_image.source)
                             console.log(fileName)
                             console.log(pdf_file)
+                            console.log("Selected Book")
+                            var temp_index = folder_list_thumbnail_grid.indexAt(cell_item.x, cell_item.y)
+                            console.log(temp_index)
+                            AppSettings.lastComicIndex = temp_index
+                            AppSettings.lastComic = pdf_file
                             for (var i = 0; i < pdf_screen.children.length; ++i) {
                                 console.log(pdf_screen.children[i].objectName)
                                 if (pdf_screen.children[i].objectName === "pdf_view") {
                                     console.log(pdf_screen.children[i].document)
                                     pdf_screen.children[i].document.source = fileUrl
+
+
                                     console.log(parent)
                                     swipeView.setCurrentIndex(1)
                                     pdf_screen.destinedPage = (json_data.page) ? json_data.page : 0

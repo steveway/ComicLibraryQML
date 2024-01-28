@@ -38,6 +38,7 @@ Rectangle {
             console.log(folder_list.selectedBook.json_data.page)
             console.log(folder_list.selectedBook.json_data.progress)
             folder_list.selectedBook.json_data.page = currentPage
+            AppSettings.lastPage = currentPage
             console.log(folder_list.selectedBook.json_data.page)
             folder_list.selectedBook.json_data.progress = (currentPage / document.pageCount) * 100
             console.log(folder_list.selectedBook.json_data.progress)
@@ -139,7 +140,7 @@ Rectangle {
     Timer {
         id: page_changer
         objectName: "page_changer"
-        interval: 100
+        interval: 200
         running: false
         repeat: false
         onTriggered: {

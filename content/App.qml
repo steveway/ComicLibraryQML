@@ -54,9 +54,21 @@ Window {
         anchors.left: parent.left
         currentIndex: tabBar.currentIndex
 
-        Screen04 {
-            id: folder_list
+            Screen04 {
+                id: folder_list
+                Component.onCompleted:{
+                    console.log("FolderView Loaded")
+                    if (AppSettings.lastFolder){
+                        check_for_thumbnail_folder(AppSettings.lastFolder)
+                        if (AppSettings.lastComicIndex){
+                            folder_list.destinedIndex = AppSettings.lastComicIndex
+                        }
+                    }
+                }
+
+
         }
+
         Screen02 {
             id: pdf_screen
         }
@@ -173,6 +185,7 @@ Window {
             console.log(fileDialog.selectedFolder)
             console.log(fileDialog.currentFolder)
             console.log(currentFolder)
+            AppSettings.lastFolder = fileDialog.selectedFolder
             check_for_thumbnail_folder(fileDialog.selectedFolder)
         }
     }
