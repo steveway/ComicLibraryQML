@@ -14,10 +14,17 @@ Rectangle {
     id: rectangle
     objectName: "pdf_screen_rect"
     property int destinedPage: 0
+    property string destinedBook: ""
     width: Constants.width
     height: Constants.height
 
     color: Constants.backgroundColor
+
+    onDestinedBookChanged: {
+        console.log("Changing Book to")
+        console.log(destinedBook)
+        pdf_document.source = destinedBook
+    }
 
     onDestinedPageChanged: {
         console.log("page changed")
@@ -32,17 +39,17 @@ Rectangle {
 
             /^(file:\/+|qrc:\/+|http:\/+)(?=[A-Z])(?=[^:])|^(file:\/+|qrc:\/+|http:\/+)(?=(\/|$))/
             var big_regex = /^(file:\/+|qrc:\/+|http:\/+)(?=[A-Z])(?=[^:])|^(file:\/+|qrc:\/+|http:\/+)(?=(\/|$))/
-            console.log("Changing Page:")
-            console.log(currentPage)
-            console.log(folder_list)
-            console.log(folder_list.selectedBook.json_data.page)
-            console.log(folder_list.selectedBook.json_data.progress)
+            // console.log("Changing Page:")
+            // console.log(currentPage)
+            // console.log(folder_list)
+            // console.log(folder_list.selectedBook.json_data.page)
+            // console.log(folder_list.selectedBook.json_data.progress)
             folder_list.selectedBook.json_data.page = currentPage
             AppSettings.lastPage = currentPage
-            console.log(folder_list.selectedBook.json_data.page)
+            // console.log(folder_list.selectedBook.json_data.page)
             folder_list.selectedBook.json_data.progress = (currentPage / document.pageCount) * 100
-            console.log(folder_list.selectedBook.json_data.progress)
-            console.log(folder_list.selectedBook.conf_file)
+            // console.log(folder_list.selectedBook.json_data.progress)
+            // console.log(folder_list.selectedBook.conf_file)
             folder_list.selectedBook.update_progress_bar(
                         (currentPage / document.pageCount) * 100)
             folder_list.write_progress_to_file(
@@ -161,28 +168,4 @@ Rectangle {
             }
         }
     }
-
-    // Connections {
-    //     target: backend
-    //     function onManualPageChange(arg1) {
-    //         while (pdf_document.status == PdfDocument.Null
-    //                || pdf_document.status == PdfDocument.Loading
-    //                || pdf_document.status == PdfDocument.Unloading) {
-    //             backend.updateUI()
-    //         }
-    //         while (pdf_view.currentPageRenderingStatus == Image.Null
-    //                || pdf_view.currentPageRenderingStatus == Image.Loading) {
-    //             backend.updateUI()
-    //         }
-    //         destinedPage = arg1
-    //         page_changer.start()
-    //         console.log(pdf_view.currentPage)
-    //         console.log("page changed?")
-    //     }
-    //     function onChangeDocument(arg1) {
-    //         console.log("change doc")
-    //         console.log(arg1)
-    //         pdf_document.source = arg1
-    //     }
-    // }
 }

@@ -42,8 +42,12 @@ Rectangle {
             for (var i = 0; i < pdf_screen.children.length; ++i) {
                 console.log(pdf_screen.children[i].objectName)
                 if (pdf_screen.children[i].objectName === "pdf_view") {
-                    pdf_screen.children[i].document.source = AppSettings.lastComic
+                    console.log("load last comic")
+                    //pdf_screen.children[i].document.source = AppSettings.lastComic
+                    pdf_screen.destinedBook = AppSettings.lastComic
+                    console.log("set SwipeView Index")
                     swipeView.setCurrentIndex(1)
+                    console.log("Change Page")
                     pdf_screen.destinedPage = AppSettings.lastPage
                 }
             }
@@ -203,11 +207,13 @@ Rectangle {
                             for (var i = 0; i < pdf_screen.children.length; ++i) {
                                 console.log(pdf_screen.children[i].objectName)
                                 if (pdf_screen.children[i].objectName === "pdf_view") {
+                                    console.log("Found PDF View")
                                     console.log(pdf_screen.children[i].document)
-                                    pdf_screen.children[i].document.source = fileUrl
+                                    pdf_screen.destinedBook = fileUrl
+                                    //pdf_screen.children[i].document.source = fileUrl
 
-
-                                    console.log(parent)
+                                    console.log("set SwipeView Index")
+                                    // console.log(parent)
                                     swipeView.setCurrentIndex(1)
                                     pdf_screen.destinedPage = (json_data.page) ? json_data.page : 0
                                     //pdf_screen.children[i].goToPage(json_data.page)

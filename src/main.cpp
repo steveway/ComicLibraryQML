@@ -10,8 +10,8 @@
 #include "import_qml_components_plugins.h"
 #include "import_qml_plugins.h"
 #include "fileio.h"
-#include "worker.h"
-#include <QThread>
+// #include "worker.h"
+// #include <QThread>
 
 int main(int argc, char *argv[])
 {
@@ -22,14 +22,14 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("steveway.pythonanywhere.org");
     app.setApplicationName("ComicLibrary");
     FileIO fileIO;
-    Worker cpp;
-    QThread cpp_thread;
-    cpp.moveToThread(&cpp_thread);
-    cpp_thread.start();
+    // Worker cpp;
+    // QThread cpp_thread;
+    // cpp.moveToThread(&cpp_thread);
+    // cpp_thread.start();
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("fileio", &fileIO);
-    engine.rootContext()->setContextProperty("cpp", &cpp);
+    // engine.rootContext()->setContextProperty("cpp", &cpp);
     const QUrl url(u"qrc:/qt/qml/Main/main.qml"_qs);
     QObject::connect(
         &engine,
