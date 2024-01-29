@@ -237,12 +237,10 @@ Rectangle {
                         Layout.preferredHeight: thumb_image / 2
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        //opacity: 0.5
-                        //border.color: "black"
-                        //border.width: 5
                         radius: 2
 
                     ColumnLayout{
+                        width: background_rect.width
                     ProgressBar {
                         id: book_progress
                         objectName: "progress_" + fileName
