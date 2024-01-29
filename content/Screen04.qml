@@ -33,8 +33,20 @@ Rectangle {
             fileio.updateUI()
         }
         folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
-        if(AppSettings.lastComic){
 
+        selectedBook = folder_list_thumbnail_grid.itemAtIndex(destinedIndex)
+        console.log("Selected Book:")
+        console.log(selectedBook)
+
+        if(AppSettings.lastComic){
+            for (var i = 0; i < pdf_screen.children.length; ++i) {
+                console.log(pdf_screen.children[i].objectName)
+                if (pdf_screen.children[i].objectName === "pdf_view") {
+                    pdf_screen.children[i].document.source = AppSettings.lastComic
+                    swipeView.setCurrentIndex(1)
+                    pdf_screen.destinedPage = AppSettings.lastPage
+                }
+            }
         }
     }
 
