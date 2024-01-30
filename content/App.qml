@@ -54,19 +54,15 @@ Window {
         anchors.left: parent.left
         currentIndex: tabBar.currentIndex
 
-            Screen04 {
-                id: folder_list
-                Component.onCompleted:{
-                    console.log("FolderView Loaded")
-                    if (AppSettings.lastFolder){
-                        check_for_thumbnail_folder(AppSettings.lastFolder)
-                        if (AppSettings.lastComicIndex){
-                            folder_list.destinedIndex = AppSettings.lastComicIndex
-                        }
-                    }
+        Screen04 {
+            id: folder_list
+            Component.onCompleted:{
+                console.log("FolderView Loaded")
+                if (AppSettings.lastFolder){
+                    check_for_thumbnail_folder(AppSettings.lastFolder)
+
                 }
-
-
+            }
         }
 
         Screen02 {

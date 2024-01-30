@@ -18,6 +18,7 @@
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QGraphicsPixmapItem>
 #include <QtGui/QPainter>
+#include <QThread>
 
 
 class FileIO : public QObject
@@ -161,6 +162,10 @@ public slots:
     void updateUI(){
         QCoreApplication::processEvents();
     }
+    void delay(int delay_in_ms){
+        QThread::msleep(delay_in_ms);
+    }
+
 
 public:
     explicit FileIO(QObject *parent = nullptr);

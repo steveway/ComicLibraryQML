@@ -26,32 +26,97 @@ Rectangle {
     height: Constants.height
     //anchors.bottom: menu_bar.top
     color: Constants.backgroundColor
+    onLoadingFinishedChanged: {
+        if (AppSettings.lastComicIndex){
+            //folder_list_thumbnail_grid.positionViewAtBeginning()
+            console.log(folder_list_thumbnail_grid.moving)
+            folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+            console.log(folder_list_thumbnail_grid.moving)
+            //while(folder_list_thumbnail_grid.contains())
+            console.log("This needs to be right before Moving")
+            destinedIndex = folderModel.indexOf(AppSettings.lastComic)
+        }
+    }
+
     onDestinedIndexChanged: {
         console.log("Moving Index to:")
         console.log(destinedIndex)
-        while(!loadingFinished){
-            fileio.updateUI()
-        }
-        folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+        console.log(folder_list_thumbnail_grid.count)
+        console.log(folder_list_thumbnail_grid.contentItem.children)
+        console.log(folder_list_thumbnail_grid.contentItem.children[destinedIndex])
+        folder_list_thumbnail_grid.positionViewAtBeginning()
+        // var temp_book
+        // var scrool_bar_widget
+        // for(var i = 0; i< folder_list_thumbnail_grid.children.length; ++i){
+        //     if (folder_list_thumbnail_grid.children[i].objectName === "scrollbar_thumbs"){
+        //         scroll_
+        //     }
+        // }
 
-        selectedBook = folder_list_thumbnail_grid.itemAtIndex(destinedIndex)
+        // while(!selectedBook){
+        //     folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+        //     fileio.updateUI()
+        //     fileio.delay(50)
+        //     temp_book = folder_list_thumbnail_grid.itemAtIndex(destinedIndex)
+        //     if(temp_book){
+        //         selectedBook = temp_book
+        //     }
+        // }
+
+
+        // folder_list_thumbnail_grid.positionViewAtBeginning()
+        // var mov_index = 0
+        // while(!selectedBook){
+        //     for(var i = 0; i<folder_list_thumbnail_grid.contentItem.children.length; ++i){
+        //         var obj = folder_list_thumbnail_grid.contentItem.children[i]
+        //         if(obj.pdf_file === AppSettings.lastComic){
+        //             selectedBook = obj
+        //         }
+
+        //         console.log(obj)
+        //         console.log(obj.pdf_file)
+        //     }
+        //     //folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex + 1, GridView.Visible)
+        //     //selectedBook = folder_list_thumbnail_grid.itemAtIndex(destinedIndex)
+        //     fileio.updateUI()
+        //     mov_index = mov_index + 1
+        //     folder_list_thumbnail_grid.positionViewAtIndex(mov_index, GridView.Visible)
+        //     if(mov_index > folder_list_thumbnail_grid.count){
+        //         break;
+        //     }
+
+        // }
+        console.log("loading is finished")
+
         console.log("Selected Book:")
         console.log(selectedBook)
+        open_book.start()
 
-        if(AppSettings.lastComic){
-            for (var i = 0; i < pdf_screen.children.length; ++i) {
-                console.log(pdf_screen.children[i].objectName)
-                if (pdf_screen.children[i].objectName === "pdf_view") {
-                    console.log("load last comic")
-                    //pdf_screen.children[i].document.source = AppSettings.lastComic
-                    pdf_screen.destinedBook = AppSettings.lastComic
-                    console.log("set SwipeView Index")
-                    swipeView.setCurrentIndex(1)
-                    console.log("Change Page")
-                    pdf_screen.destinedPage = AppSettings.lastPage
+
+    }
+    Timer {
+        id: open_book
+        objectName: "open_book"
+        interval: 1000
+        running: false
+        repeat: false
+        onTriggered: {
+            if(AppSettings.lastComic){
+                for (var i = 0; i < pdf_screen.children.length; ++i) {
+                    console.log(pdf_screen.children[i].objectName)
+                    if (pdf_screen.children[i].objectName === "pdf_view") {
+                        console.log("load last comic")
+                        //pdf_screen.children[i].document.source = AppSettings.lastComic
+                        pdf_screen.destinedBook = AppSettings.lastComic
+                        console.log("set SwipeView Index")
+                        swipeView.setCurrentIndex(1)
+                        console.log("Change Page")
+                        pdf_screen.destinedPage = AppSettings.lastPage
+                    }
                 }
             }
         }
+
     }
 
     GridView {
@@ -98,9 +163,11 @@ Rectangle {
 
         Component {
             id: fileDelegate
-            ColumnLayout {
-                //border.color: "black"
+
+            Rectangle {
                 id: cell_item
+                property bool isSelected: false
+                color: (isSelected) ? palette.highlight : Constants.backgroundColor
 
                 width: folder_list_thumbnail_grid.cellWidth
                 height: folder_list_thumbnail_grid.cellHeight
@@ -115,116 +182,142 @@ Rectangle {
                                                     0, fileName.lastIndexOf(
                                                         ".")) + ".png"
                 property var json_data: null
+
+                onIsSelectedChanged: {
+                    console.log("clicked on")
+                    console.log(objectName)
+                }
                 function update_progress_bar(progress) {
                     book_progress.value = progress
                 }
-                Timer {
-                    id: thumbnail_generator
-                    objectName: "thumbnail_generator"
-                    interval: 0
-                    running: false
-                    repeat: false
-                    onTriggered: {
+
+                ColumnLayout {
+                    //border.color: "black"
+                    anchors.fill: cell_item
+
+
+                    Timer {
+                        id: thumbnail_generator
+                        objectName: "thumbnail_generator"
+                        interval: 0
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            // console.log("Trying to generate:")
+                            // console.log(thumbnail_path)
+                            if (!fileio.does_file_exist(thumbnail_path)) {
+                                fileio.create_thumbnail(pdf_file, thumbnail_path,
+                                                        thumb_image.height)
+                            }
+                            // thumb_image.source = thumbnail_path
+                            // json_data = read_progress_from_file(conf_file)
+                            progress_bar.to = folderModel.count
+                            progress_bar.value = progress_bar.value + 1
+                        }
+                    }
+
+                    Timer {
+                        id: set_thumb_path
+                        interval: 250
+                        running: false
+                        repeat: true
+                        onTriggered: {
+                            if(fileio.does_file_exist(thumbnail_path)){
+                                thumb_image.source = thumbnail_path
+                                set_thumb_path.stop()
+                            }
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if(destinedIndex === index){
+                            if(selectedBook === cell_item){
+                                cell_item.isSelected = true
+                            }
+                        }
+
+                        // console.log("Generate Thumbnail")
+                        // console.log(conf_file)
+                        thumbnail_generator.start()
+                        // thumb_image.source = thumbnail_path
+                        // set_thumb_path.start()
+                        json_data = read_progress_from_file(conf_file)
+                        progress_bar.to = folderModel.count
+                        progress_bar.value = progress_bar.value + 1
                         if (!fileio.does_file_exist(thumbnail_path)) {
                             fileio.create_thumbnail(pdf_file, thumbnail_path,
                                                     thumb_image.height)
                         }
-                        // thumb_image.source = thumbnail_path
-                        // json_data = read_progress_from_file(conf_file)
-                        progress_bar.to = folderModel.count
-                        progress_bar.value = progress_bar.value + 1
-                    }
-                }
-
-                Timer {
-                    id: set_thumb_path
-                    interval: 250
-                    running: false
-                    repeat: true
-                    onTriggered: {
-                        if(fileio.does_file_exist(thumbnail_path)){
-                            thumb_image.source = thumbnail_path
-                            set_thumb_path.stop()
+                        thumb_image.source = thumbnail_path
+                        //fileio.updateUI()
+                        if (scrollindex < folder_list_thumbnail_grid.count){
+                            scrollindex = scrollindex + 1
+                            folder_list_thumbnail_grid.positionViewAtIndex(scrollindex, GridView.Visible)
+                            // fileio.updateUI()
                         }
-                    }
-                }
+                        else{
+                            folder_list_thumbnail_grid.enabled = true
+                            grey_overlay.enabled = false
+                            grey_overlay.visible = false
+                            loadingFinished = true
+                        }
 
-                Component.onCompleted: {
-                    thumbnail_generator.start()
-                    // thumb_image.source = thumbnail_path
-                    // set_thumb_path.start()
-                    json_data = read_progress_from_file(conf_file)
-                    progress_bar.to = folderModel.count
-                    progress_bar.value = progress_bar.value + 1
-                    if (!fileio.does_file_exist(thumbnail_path)) {
-                        fileio.create_thumbnail(pdf_file, thumbnail_path,
-                                                thumb_image.height)
-                    }
-                    thumb_image.source = thumbnail_path
-                    //fileio.updateUI()
-                    if (scrollindex < folder_list_thumbnail_grid.count){
-                        scrollindex = scrollindex + 1
-                        folder_list_thumbnail_grid.positionViewAtIndex(scrollindex, GridView.Visible)
-                    }
-                    else{
-                        folder_list_thumbnail_grid.enabled = true
-                        grey_overlay.enabled = false
-                        grey_overlay.visible = false
-                        loadingFinished = true
-                    }
+                        // cpp.create_thumbnail(pdf_file, thumbnail_path,
+                        //                         thumb_image.height)
 
-                    // cpp.create_thumbnail(pdf_file, thumbnail_path,
-                    //                         thumb_image.height)
+                    }
+                    Image {
+                        id: thumb_image
+                        Layout.preferredHeight: cell_item.height / (cell_item.height / 128)// 1.5625
+                        //width: cell_item.width
+                        // y: 0
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                        //anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.alignment: Qt.AlignHCenter
+                        //source: thumbnail_path
+                        MouseArea {
+                            id: thumb_click
+                            anchors.fill: parent
+                            onClicked: {
+                                if(selectedBook){
+                                    selectedBook.isSelected = false
+                                }
+                                selectedBook = cell_item
+                                cell_item.isSelected = true
+                                //selectedBook = model.pdf_file
+                                //backend.openComic(model.pdf_file)
+                                //console.log(mainWindow)
+                                console.log(thumb_image)
+                                console.log(thumb_image.source)
+                                console.log(fileName)
+                                console.log(pdf_file)
+                                console.log("Selected Book")
+                                var temp_index = folder_list_thumbnail_grid.indexAt(cell_item.x, cell_item.y)
+                                console.log(temp_index)
+                                AppSettings.lastComicIndex = temp_index
+                                AppSettings.lastComic = pdf_file
+                                for (var i = 0; i < pdf_screen.children.length; ++i) {
+                                    console.log(pdf_screen.children[i].objectName)
+                                    if (pdf_screen.children[i].objectName === "pdf_view") {
+                                        console.log("Found PDF View")
+                                        console.log(pdf_screen.children[i].document)
+                                        pdf_screen.destinedBook = fileUrl
+                                        //pdf_screen.children[i].document.source = fileUrl
 
-                }
-                Image {
-                    id: thumb_image
-                    Layout.preferredHeight: cell_item.height / (cell_item.height / 128)// 1.5625
-                    //width: cell_item.width
-                    // y: 0
-                    fillMode: Image.PreserveAspectFit
-                    asynchronous: true
-                    //anchors.horizontalCenter: parent.horizontalCenter
-                    Layout.alignment: Qt.AlignHCenter
-                    //source: thumbnail_path
-                    MouseArea {
-                        id: thumb_click
-                        anchors.fill: parent
-                        onClicked: {
-                            selectedBook = cell_item
-                            //selectedBook = model.pdf_file
-                            //backend.openComic(model.pdf_file)
-                            //console.log(mainWindow)
-                            console.log(thumb_image)
-                            console.log(thumb_image.source)
-                            console.log(fileName)
-                            console.log(pdf_file)
-                            console.log("Selected Book")
-                            var temp_index = folder_list_thumbnail_grid.indexAt(cell_item.x, cell_item.y)
-                            console.log(temp_index)
-                            AppSettings.lastComicIndex = temp_index
-                            AppSettings.lastComic = pdf_file
-                            for (var i = 0; i < pdf_screen.children.length; ++i) {
-                                console.log(pdf_screen.children[i].objectName)
-                                if (pdf_screen.children[i].objectName === "pdf_view") {
-                                    console.log("Found PDF View")
-                                    console.log(pdf_screen.children[i].document)
-                                    pdf_screen.destinedBook = fileUrl
-                                    //pdf_screen.children[i].document.source = fileUrl
-
-                                    console.log("set SwipeView Index")
-                                    // console.log(parent)
-                                    swipeView.setCurrentIndex(1)
-                                    pdf_screen.destinedPage = (json_data.page) ? json_data.page : 0
-                                    //pdf_screen.children[i].goToPage(json_data.page)
-                                    //pdf_screen.destinedPage = json_data.page
-                                    // console.log(pdf_screen.children[i])
-                                    // pdf_screen.children[i].page_changer.start()
+                                        console.log("set SwipeView Index")
+                                        // console.log(parent)
+                                        swipeView.setCurrentIndex(1)
+                                        pdf_screen.destinedPage = (json_data.page) ? json_data.page : 0
+                                        //pdf_screen.children[i].goToPage(json_data.page)
+                                        //pdf_screen.destinedPage = json_data.page
+                                        // console.log(pdf_screen.children[i])
+                                        // pdf_screen.children[i].page_changer.start()
+                                    }
                                 }
                             }
                         }
                     }
-                }
                     Rectangle {
                         id: background_rect
                         //y: thumb_image.y + thumb_image.height + 5
@@ -239,52 +332,52 @@ Rectangle {
                         Layout.fillHeight: true
                         radius: 2
 
-                    ColumnLayout{
-                        width: background_rect.width
-                    ProgressBar {
-                        id: book_progress
-                        objectName: "progress_" + fileName
-                        Layout.preferredHeight: 12
-                        //y: thumb_image.y + thumb_image.height
-                        //width: parent.width - (parent.width / 15)
-                        //height: (cell_item.height - y) / 3
-                        //anchors.horizontalCenter: parent.horizontalCenter
-                        to: 100.0
-                        from: 0.0
-                        value: (json_data.progress !== undefined) ? json_data.progress : 0.0
-                        //Material.accent: Material.DeepOrange
-                    }
-                    Item{
-                        Layout.fillHeight: true
-                        Layout.preferredHeight: background_rect.height - book_progress.height
-                        Layout.fillWidth: true
-                        //visible: false
-                        //color: "red"
-                    // }
-                    Text {
-                        id: thumb_label
+                        ColumnLayout{
+                            width: background_rect.width
+                            ProgressBar {
+                                id: book_progress
+                                objectName: "progress_" + fileName
+                                Layout.preferredHeight: 12
+                                //y: thumb_image.y + thumb_image.height
+                                //width: parent.width - (parent.width / 15)
+                                //height: (cell_item.height - y) / 3
+                                //anchors.horizontalCenter: parent.horizontalCenter
+                                to: 100.0
+                                from: 0.0
+                                value: (typeof json_data !== 'undefined') ? json_data.progress : 0.0
+                                //Material.accent: Material.DeepOrange
+                            }
+                            Item{
+                                Layout.fillHeight: true
+                                Layout.preferredHeight: background_rect.height - book_progress.height
+                                Layout.fillWidth: true
+                                //visible: false
+                                //color: "red"
+                                // }
+                                Text {
+                                    id: thumb_label
 
-                        //x : parent.x - width / 1.5
-                        //y: background_rect.y //+ book_progress.height
-                        //width: cell_item.width - (cell_item.width / 20)
-                        //height: (cell_item.height - thumb_image.height
-                        //         - book_progress.height) //+ book_progress.height))
-                        width: parent.width
-                        height: parent.height
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        //Layout.preferredHeight: 128
-                        //Layout.fillHeight: true
-                        //Layout.fillWidth: true
-                        text: fileBaseName
-                        fontSizeMode: Text.Fit
-                        wrapMode: Text.Wrap
-                        elide: Text.ElideRight
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                    }
-
+                                    //x : parent.x - width / 1.5
+                                    //y: background_rect.y //+ book_progress.height
+                                    //width: cell_item.width - (cell_item.width / 20)
+                                    //height: (cell_item.height - thumb_image.height
+                                    //         - book_progress.height) //+ book_progress.height))
+                                    width: parent.width
+                                    height: parent.height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    //Layout.preferredHeight: 128
+                                    //Layout.fillHeight: true
+                                    //Layout.fillWidth: true
+                                    text: fileBaseName
+                                    fontSizeMode: Text.Fit
+                                    wrapMode: Text.Wrap
+                                    elide: Text.ElideRight
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+                        }
 
                     }
                 }
@@ -318,6 +411,7 @@ Rectangle {
 
         ScrollBar.vertical: ScrollBar {
             id: scrollbar_thumbs
+            objectName: "scrollbar_thumbs"
             parent: folder_list_thumbnail_grid
             anchors.right: folder_list_thumbnail_grid.right
             //anchors.bottom: menu_bar.top

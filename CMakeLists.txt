@@ -25,6 +25,8 @@ qt_add_resources(CLCApp "configuration"
         qtquickcontrols2.conf
 )
 
+list(APPEND _QT_conf -no-feature-d3d12)
+
 target_link_libraries(CLCApp PRIVATE
     Qt6::Core
     Qt6::Gui
