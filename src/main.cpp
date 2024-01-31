@@ -5,7 +5,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-
+#include <QIcon>
 #include "app_environment.h"
 #include "import_qml_components_plugins.h"
 #include "import_qml_plugins.h"
@@ -22,6 +22,11 @@ int main(int argc, char *argv[])
     app.setOrganizationName("Steveway");
     app.setOrganizationDomain("steveway.pythonanywhere.org");
     app.setApplicationName("ComicLibrary");
+    // QIcon windowIcon("peruse.ico");
+    // qDebug() << windowIcon.name();
+    // qDebug() << "Window Icon Path";
+    // qDebug() << QUrl("./content/peruse.ico").path();
+    app.setWindowIcon(QIcon(":/qt/qml/content/peruse.ico"));
     FileIO fileIO;
     // Worker cpp;
     // QThread cpp_thread;
