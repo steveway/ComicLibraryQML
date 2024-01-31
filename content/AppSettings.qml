@@ -13,5 +13,6 @@ Settings {
     property int windowHeight: Constants.height
     property int windowWidth: Constants.width
     property bool fullscreen: false
+    property double button_offset: 0
 
 }

@@ -27,9 +27,6 @@ class FileIO : public QObject
 public slots:
     bool write(const QUrl& source, const QString& data)
     {
-        qInfo() << "Write out file";
-        qInfo() << source;
-        qInfo() << data;
         if(source.isEmpty()){
             qDebug() << "Source is Empty!";
             return false;
@@ -78,11 +75,6 @@ public slots:
         if (!file_info.exists()){
             qDebug() << "Creating Thumbnail: " << thumb_image_path.toLocalFile();
             qDebug() << create_thumbnail_dir(thumb_image_path);
-            // QFile file(file_path.toLocalFile());
-            // if (!file.open(QFile::WriteOnly | QFile::Truncate)){
-            //     qDebug() << "Problem Opening!";
-            //     return false;
-            // }
             QPdfDocument pdf_document;
             //updateUI();
             pdf_document.load(file_path.toLocalFile());

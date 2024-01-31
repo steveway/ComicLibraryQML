@@ -21,9 +21,6 @@ Window {
     }
 
     onXChanged: {
-        console.log("Position changed:")
-        console.log(mainWindow.x)
-        console.log(mainWindow.y)
         AppSettings.windowX = mainWindow.x
     }
     onYChanged: {
@@ -31,10 +28,6 @@ Window {
     }
 
     onVisibilityChanged: {
-        console.log("Visibility Changed:")
-        console.log(mainWindow.visibility)
-        console.log(Window.FullScreen)
-        console.log(Window.Windowed)
         if(mainWindow.visibility === Window.FullScreen){
             AppSettings.fullscreen = true
         }
@@ -57,7 +50,6 @@ Window {
         Screen04 {
             id: folder_list
             Component.onCompleted:{
-                console.log("FolderView Loaded")
                 if (AppSettings.lastFolder){
                     check_for_thumbnail_folder(AppSettings.lastFolder)
 
@@ -75,6 +67,7 @@ Window {
                 height: mainWindow.height
                 color: Constants.backgroundColor
                 Button {
+                    id: show_menu_button
                     text: (menu_bar.hidden) ? qsTr("Show Menu Bar") : qsTr(
                                                   "Hide Menu Bar")
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -87,6 +80,20 @@ Window {
                             animation_in.start()
                             menu_bar.hidden = false
                         }
+                    }
+                }
+                ScrollBar {
+                    id: button_offset_scrollbar
+                    // anchors.verticalCenter: parent.verticalCenter
+                    y: 0
+                    height: parent.height
+                    width: parent.width / 8
+                    anchors.right: parent.right
+                    policy: ScrollBar.AlwaysOn
+                    visible: true
+                    position: (AppSettings.button_offset - 1) * -1.0
+                    onPositionChanged: {
+                        AppSettings.button_offset = (position - 1.0) * -1.0
                     }
                 }
             }
@@ -176,19 +183,11 @@ Window {
         //options: FolderDialog.ShowDirsOnly
         //selectFolder: true
         onAccepted: {
-            //file_manager.file_url = fileDialog.currentFolder  // <---
-            console.log("Selected")
-            console.log(fileDialog.selectedFolder)
-            console.log(fileDialog.currentFolder)
-            console.log(currentFolder)
             AppSettings.lastFolder = fileDialog.selectedFolder
             check_for_thumbnail_folder(fileDialog.selectedFolder)
         }
     }
     function check_for_thumbnail_folder(folder_path) {
-        console.log("Opening folder:")
-        console.log(folder_path)
-        console.log(folder_list.children)
         folder_list.children[0].model.folder = folder_path
         folder_list.children[0].model.rootFolder = folder_path
     }
