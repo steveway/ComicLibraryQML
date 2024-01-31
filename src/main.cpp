@@ -10,6 +10,7 @@
 #include "import_qml_components_plugins.h"
 #include "import_qml_plugins.h"
 #include "fileio.h"
+#include <./singleapplication/singleapplication.h>
 // #include "worker.h"
 // #include <QThread>
 
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 {
     set_qt_environment();
 
-    QApplication app(argc, argv);
+    SingleApplication app(argc, argv);
     app.setOrganizationName("Steveway");
     app.setOrganizationDomain("steveway.pythonanywhere.org");
     app.setApplicationName("ComicLibrary");

@@ -25,7 +25,8 @@ qt_add_resources(CLCApp "configuration"
         qtquickcontrols2.conf
 )
 
-list(APPEND _QT_conf -no-feature-d3d12)
+set(QAPPLICATION_CLASS QApplication CACHE STRING "Inheritance class for SingleApplication")
+add_subdirectory(./singleapplication/)
 
 target_link_libraries(CLCApp PRIVATE
     Qt6::Core
@@ -34,6 +35,7 @@ target_link_libraries(CLCApp PRIVATE
     Qt6::Quick
     Qt6::Pdf
     Qt6::Widgets
+    SingleApplication::SingleApplication
 )
 
 set_source_files_properties(AppSettings.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
