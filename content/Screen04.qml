@@ -23,19 +23,33 @@ Rectangle {
     color: Constants.backgroundColor
     onLoadingFinishedChanged: {
         if (AppSettings.lastComicIndex){
-            folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+            //folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
             destinedIndex = folderModel.indexOf(AppSettings.lastComic)
         }
     }
 
     onDestinedIndexChanged: {
-        folder_list_thumbnail_grid.positionViewAtBeginning()
+        //folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+        //folder_list_thumbnail_grid.positionViewAtBeginning()
         open_book.start()
+        move_to_page.start()
     }
+
+    Timer {
+        id: move_to_page
+        objectName: "move_to_page"
+        interval: 200
+        running: false
+        repeat: false
+        onTriggered: {
+            folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
+        }
+    }
+
     Timer {
         id: open_book
         objectName: "open_book"
-        interval: 1000
+        interval: 100
         running: false
         repeat: false
         onTriggered: {
