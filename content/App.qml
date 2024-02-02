@@ -4,27 +4,31 @@ import QtQuick.Dialogs
 import CLC
 
 Window {
-    width: AppSettings.windowWidth
-    height: AppSettings.windowHeight
-    x: AppSettings.windowX
-    y: AppSettings.windowY
+
+    width: AppSettings.windowRect.width
+    height: AppSettings.windowRect.height
+    x: AppSettings.windowRect.x
+    y: AppSettings.windowRect.y
 
     property bool fullscreen: AppSettings.fullscreen
     visibility: fullscreen ? Window.FullScreen : Window.Windowed
     id: mainWindow
 
     onWidthChanged: {
-        AppSettings.windowWidth = mainWindow.width
+        changeWindowRectSettings()
     }
     onHeightChanged: {
-        AppSettings.windowHeight = mainWindow.height
+        changeWindowRectSettings()
     }
 
     onXChanged: {
-        AppSettings.windowX = mainWindow.x
+        changeWindowRectSettings()
     }
     onYChanged: {
-        AppSettings.windowY = mainWindow.y
+        changeWindowRectSettings()
+    }
+    function changeWindowRectSettings(){
+        AppSettings.windowRect = Qt.rect(mainWindow.x, mainWindow.y, mainWindow.width, mainWindow.height)
     }
 
     onVisibilityChanged: {
