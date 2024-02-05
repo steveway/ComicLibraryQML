@@ -243,7 +243,7 @@ Rectangle {
                                 Layout.preferredHeight: 12
                                 to: 100.0
                                 from: 0.0
-                                value: (typeof json_data !== 'undefined') ? json_data.progress : 0.0
+                                value: (typeof json_data !== 'undefined') & (typeof json_data.progress !== 'undefined') ? json_data.progress : 0.0
                                 //Material.accent: Material.DeepOrange
                             }
                             Item{

@@ -8,7 +8,7 @@ Settings {
     property string lastComic: ""
     property int lastComicIndex: 0
     property int lastPage: 0
-    property rect windowRect: Qt.rect(0,0, Constanst.width, Constants.height)
+    property rect windowRect: Qt.rect(0,0, Constants.width, Constants.height)
     property bool fullscreen: false
     property double button_offset: 0
 

@@ -4,11 +4,13 @@ import QtQuick.Dialogs
 import CLC
 
 Window {
-
-    width: AppSettings.windowRect.width
-    height: AppSettings.windowRect.height
-    x: AppSettings.windowRect.x
-    y: AppSettings.windowRect.y
+    width: Constants.width
+    height: Constants.height
+/*
+    width: AppSettings.windowWidth
+    height: AppSettings.windowHeight
+    x: AppSettings.windowX
+    y: AppSettings.windowY*/
 
     property bool fullscreen: AppSettings.fullscreen
     visibility: fullscreen ? Window.FullScreen : Window.Windowed
@@ -28,6 +30,10 @@ Window {
         changeWindowRectSettings()
     }
     function changeWindowRectSettings(){
+        AppSettings.windowX = mainWindow.x
+        AppSettings.windowY = mainWindow.y
+        AppSettings.windowWidth = mainWindow.width
+        AppSettings.windowHeight = mainWindow.height
         AppSettings.windowRect = Qt.rect(mainWindow.x, mainWindow.y, mainWindow.width, mainWindow.height)
     }
 
@@ -72,17 +78,17 @@ Window {
                 color: Constants.backgroundColor
                 Button {
                     id: show_menu_button
-                    text: (menu_bar.hidden) ? qsTr("Show Menu Bar") : qsTr(
+                    text: (menu_bar.not_hidden === 0) ? qsTr("Show Menu Bar") : qsTr(
                                                   "Hide Menu Bar")
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     onClicked: {
-                        if (menu_bar.hidden === false) {
-                            menu_bar.hidden = true
+                        if (menu_bar.not_hidden === 1) {
                             animation_out.start()
+                            //menu_bar.hidden = true
                         } else {
                             animation_in.start()
-                            menu_bar.hidden = false
+                            //menu_bar.hidden = false
                         }
                     }
                 }
@@ -105,19 +111,31 @@ Window {
     }
     SequentialAnimation {
         id: animation_out
+        // NumberAnimation {
+        //     target: menu_bar
+        //     property: "y"
+        //     to: mainWindow.height
+        //     duration: 500
+        // }
         NumberAnimation {
             target: menu_bar
-            property: "y"
-            to: mainWindow.height
+            property: "not_hidden"
+            to: 0
             duration: 500
         }
     }
     SequentialAnimation {
         id: animation_in
+        // NumberAnimation {
+        //     target: menu_bar
+        //     property: "y"
+        //     to: mainWindow.height - menu_bar.height - 5
+        //     duration: 500
+        // }
         NumberAnimation {
             target: menu_bar
-            property: "y"
-            to: mainWindow.height - menu_bar.height - 5
+            property: "not_hidden"
+            to: 1
             duration: 500
         }
     }
@@ -147,12 +165,12 @@ Window {
     ToolBar {
         id: menu_bar
         objectName: "menu_bar"
-        property bool hidden
-        hidden: false
+        property double not_hidden: 1
         x: 5
-        y: mainWindow.height - height - 5
+        y: mainWindow.height - (height + 5) * not_hidden
         width: mainWindow.width - 10
         height: 72
+        background: Rectangle {gradient: Gradient.FlyHigh}
         ToolButton {
             id: add_collection_button
             y: parent.y + (parent.height / 36)
