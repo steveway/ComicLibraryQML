@@ -24,6 +24,7 @@ Rectangle {
     onDestinedBookChanged: {
         pdf_document.source = destinedBook
         fade_out_buttons.start()
+        fade_out_buttons_one.start()
     }
 
     onDestinedPageChanged: {
@@ -63,6 +64,7 @@ Rectangle {
     Column {
         id: overlay_layout
         x: 5
+        visible: (AppSettings.selected_layout === "Normal")
         y: (menu_bar.y - menu_bar.height - height - 5) - (menu_bar.y * AppSettings.button_offset)
         width: rectangle.width - 10
         height: 128
@@ -142,6 +144,90 @@ Rectangle {
         }
     }
 
+    Column {
+        id: one_handed_layout
+        visible: (AppSettings.selected_layout === "One Handed")
+        x: 5
+        y: (menu_bar.y - menu_bar.height - height - 5) - (menu_bar.y * AppSettings.button_offset)
+        width: rectangle.width - 10
+        height: 128 * 2
+        spacing: 0
+
+        Item {
+            id: button_layout_one
+            width: one_handed_layout.width
+            height: one_handed_layout.height
+            Button {
+                id: prev_page_one
+                text: "←"
+                anchors.right: button_layout_one.right
+                anchors.top: button_layout_one.top
+                // anchors.bottom: next_page_one.top
+                font.pixelSize: parent.height / 4
+
+                Connections {
+                    target: prev_page_one
+                    onClicked: {
+                        one_handed_layout.opacity = 1
+                        if (pdf_view.currentPage > 0) {
+                            pdf_view.goToPage(pdf_view.currentPage - 1)
+                        }
+                        fade_out_buttons_one.start()
+                    }
+                }
+            }
+            Button {
+                id: scale_width_one
+                objectName: "scale_width_one"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: button_layout_one.bottom
+                text: (scale_width_one.checked) ? "-" : "⛶"
+                font.pixelSize: parent.height / 4
+                checkable: true
+                Connections {
+                    target: scale_width_one
+                    onClicked: {
+                        one_handed_layout.opacity = 1
+                        if (scale_width_one.checked) {
+                            pdf_view.scaleToWidth(pdf_view.width - 100,
+                                pdf_view.height - 100)
+                            //scale_width.text = "-"
+                        } else {
+                            pdf_view.scaleToPage(pdf_view.width - 100,
+                                pdf_view.height - 100)
+                            //scale_width.text = "⛶"
+                        }
+                        fade_out_buttons_one.start()
+                    }
+                }
+            }
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: scale_width_one.top
+                width: one_handed_layout.width
+                text: pdf_document.pageCount + " / " + pdf_view.currentPage
+                horizontalAlignment: Text.AlignHCenter
+            }
+            Button {
+                id: next_page_one
+                text: "→"
+                anchors.right: button_layout_one.right
+                anchors.bottom: button_layout_one.bottom
+                font.pixelSize: parent.height / 4
+                Connections {
+                    target: next_page_one
+                    onClicked: {
+                        one_handed_layout.opacity = 1
+                        if (pdf_view.currentPage < pdf_document.pageCount - 1) {
+                            pdf_view.goToPage(pdf_view.currentPage + 1)
+                        }
+                        fade_out_buttons_one.start()
+                    }
+                }
+            }
+        }
+    }
+
     Timer {
         id: page_changer
         objectName: "page_changer"
@@ -149,16 +235,16 @@ Rectangle {
         running: false
         repeat: false
         onTriggered: {
-            while (pdf_view.currentPageRenderingStatus == Image.Null
-                   || pdf_view.currentPageRenderingStatus == Image.Loading) {
+            while (pdf_view.currentPageRenderingStatus === Image.Null
+                   || pdf_view.currentPageRenderingStatus === Image.Loading) {
                 fileio.updateUI()
             }
             pdf_view.goToPage(destinedPage)
             while (pdf_view.currentPage !== destinedPage) {
                 fileio.updateUI()
             }
-            while (pdf_view.currentPageRenderingStatus == Image.Null
-                   || pdf_view.currentPageRenderingStatus == Image.Loading) {
+            while (pdf_view.currentPageRenderingStatus === Image.Null
+                   || pdf_view.currentPageRenderingStatus === Image.Loading) {
                 fileio.updateUI()
             }
         }
@@ -167,6 +253,15 @@ Rectangle {
         id: fade_out_buttons
         NumberAnimation {
             target: overlay_layout
+            property: "opacity"
+            to: 0.2
+            duration: 5000
+        }
+    }
+    SequentialAnimation {
+        id: fade_out_buttons_one
+        NumberAnimation {
+            target: one_handed_layout
             property: "opacity"
             to: 0.2
             duration: 5000

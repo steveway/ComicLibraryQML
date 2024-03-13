@@ -92,6 +92,20 @@ Window {
                         }
                     }
                 }
+                Button {
+                    id: change_layout
+                    text: AppSettings.selected_layout
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: show_menu_button.bottom
+                    onClicked: {
+                        if ( AppSettings.selected_layout === "One Handed"){
+                            AppSettings.selected_layout = "Normal"
+                        }
+                        else {
+                            AppSettings.selected_layout = "One Handed"
+                        }
+                    }
+                }
                 ScrollBar {
                     id: button_offset_scrollbar
                     // anchors.verticalCenter: parent.verticalCenter
@@ -190,9 +204,8 @@ Window {
             from: 0
             to: 100
             onValueChanged: {
-                if (value == to) {
+                if (value === to) {
                     animation_out.start()
-                    menu_bar.hidden = true
                 }
             }
         }
