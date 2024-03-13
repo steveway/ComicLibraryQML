@@ -12,5 +12,8 @@ Settings {
     property bool fullscreen: false
     property double button_offset: 0
     property string selected_layout: "One Handed"
+    property int thumb_width: 200
+    property int thumb_height: 200
+    property bool recreate_thumbs: true
 
 }

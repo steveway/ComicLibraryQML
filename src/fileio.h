@@ -72,7 +72,7 @@ public slots:
 
     bool create_thumbnail(const QUrl& file_path, const QUrl& thumb_image_path, float thumb_max_size){
         QFileInfo file_info(thumb_image_path.toLocalFile());
-        if (!file_info.exists()){
+        if (true){
             qDebug() << "Creating Thumbnail: " << thumb_image_path.toLocalFile();
             qDebug() << create_thumbnail_dir(thumb_image_path);
             QPdfDocument pdf_document;

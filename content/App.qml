@@ -106,6 +106,39 @@ Window {
                         }
                     }
                 }
+                SpinBox {
+                    id: thumb_width_spin
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: change_layout.bottom
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    value: AppSettings.thumb_width
+                    stepSize: 50
+                    from: 10
+                    to: 4096
+                    onValueModified: {
+                        AppSettings.thumb_width = value
+                        AppSettings.recreate_thumbs = true
+                    }
+                }
+                SpinBox {
+                    id: thumb_height_spin
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: thumb_width_spin.bottom
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    value: AppSettings.thumb_height
+                    stepSize: 50
+                    from: 10
+                    to: 4096
+                    onValueModified: {
+                        AppSettings.thumb_height = value
+                        AppSettings.recreate_thumbs = true
+                    }
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: thumb_height_spin.bottom
+                    text: AppSettings.recreate_thumbs
+                }
                 ScrollBar {
                     id: button_offset_scrollbar
                     // anchors.verticalCenter: parent.verticalCenter

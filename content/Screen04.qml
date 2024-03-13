@@ -69,9 +69,9 @@ Rectangle {
     GridView {
         id: folder_list_thumbnail_grid
         enabled: false
-        x: parent.width / 400
-        y: parent.height / 400
-        width: parent.width - (parent.width / 200)
+        x: parent.width / (AppSettings.thumb_width * 2)
+        y: parent.height / (AppSettings.thumb_heigth * 2)
+        width: parent.width - (parent.width / AppSettings.thumb_width)
         height: menu_bar.y - menu_bar.height
         visible: true
         objectName: "folder_thumbnail_list"
@@ -141,7 +141,12 @@ Rectangle {
                         running: false
                         repeat: false
                         onTriggered: {
-                            if (!fileio.does_file_exist(thumbnail_path)) {
+                            console.log("Trying to generate:")
+                            console.log(thumbnail_path)
+                            console.log(AppSettings.recreate_thumbs)
+                            console.log(fileio.does_file_exist(thumbnail_path))
+                            console.log((!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs))
+                            if (!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs) {
                                 fileio.create_thumbnail(pdf_file, thumbnail_path,
                                                         thumb_image.height)
                             }
@@ -177,7 +182,7 @@ Rectangle {
                         json_data = read_progress_from_file(conf_file)
                         progress_bar.to = folderModel.count
                         progress_bar.value = progress_bar.value + 1
-                        if (!fileio.does_file_exist(thumbnail_path)) {
+                        if (!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs) {
                             fileio.create_thumbnail(pdf_file, thumbnail_path,
                                                     thumb_image.height)
                         }
@@ -193,11 +198,12 @@ Rectangle {
                             grey_overlay.enabled = false
                             grey_overlay.visible = false
                             loadingFinished = true
+                            AppSettings.recreate_thumbs = false
                         }
                     }
                     Image {
                         id: thumb_image
-                        Layout.preferredHeight: cell_item.height / (cell_item.height / 128)// 1.5625
+                        Layout.preferredHeight: cell_item.height /  1.5625
                         //width: cell_item.width
                         // y: 0
                         fillMode: Image.PreserveAspectFit
@@ -271,8 +277,8 @@ Rectangle {
             }
         }
 
-        cellHeight: 200
-        cellWidth: 200
+        cellHeight: AppSettings.thumb_height
+        cellWidth: AppSettings.thumb_width
         delegate: fileDelegate
 
         ScrollBar.vertical: ScrollBar {
