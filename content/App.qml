@@ -11,6 +11,39 @@ Window {
     height: AppSettings.windowHeight
     x: AppSettings.windowX
     y: AppSettings.windowY*/
+    property Animation animationIn: SequentialAnimation {
+        // Define your animationIn here
+        id: animation_in
+        // NumberAnimation {
+        //     target: menu_bar
+        //     property: "y"
+        //     to: mainWindow.height - menu_bar.height - 5
+        //     duration: 500
+        // }
+        NumberAnimation {
+            target: menu_bar
+            property: "not_hidden"
+            to: 1
+            duration: 500
+        }
+    }
+
+    property Animation animationOut: SequentialAnimation {
+        // Define your animationOut here
+        id: animation_out
+        // NumberAnimation {
+        //     target: menu_bar
+        //     property: "y"
+        //     to: mainWindow.height
+        //     duration: 500
+        // }
+        NumberAnimation {
+            target: menu_bar
+            property: "not_hidden"
+            to: 0
+            duration: 500
+        }
+    }
 
     property bool fullscreen: AppSettings.fullscreen
     visibility: fullscreen ? Window.FullScreen : Window.Windowed
@@ -70,120 +103,8 @@ Window {
         Screen02 {
             id: pdf_screen
         }
-        Item {
-            id: config_screen
-            Rectangle {
-                width: mainWindow.width
-                height: mainWindow.height
-                color: Constants.backgroundColor
-                Button {
-                    id: show_menu_button
-                    text: (menu_bar.not_hidden === 0) ? qsTr("Show Menu Bar") : qsTr(
-                                                  "Hide Menu Bar")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    onClicked: {
-                        if (menu_bar.not_hidden === 1) {
-                            animation_out.start()
-                            //menu_bar.hidden = true
-                        } else {
-                            animation_in.start()
-                            //menu_bar.hidden = false
-                        }
-                    }
-                }
-                Button {
-                    id: change_layout
-                    text: AppSettings.selected_layout
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: show_menu_button.bottom
-                    onClicked: {
-                        if ( AppSettings.selected_layout === "One Handed"){
-                            AppSettings.selected_layout = "Normal"
-                        }
-                        else {
-                            AppSettings.selected_layout = "One Handed"
-                        }
-                    }
-                }
-                SpinBox {
-                    id: thumb_width_spin
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: change_layout.bottom
-                    inputMethodHints: Qt.ImhDigitsOnly
-                    value: AppSettings.thumb_width
-                    stepSize: 50
-                    from: 10
-                    to: 4096
-                    onValueModified: {
-                        AppSettings.thumb_width = value
-                        AppSettings.recreate_thumbs = true
-                    }
-                }
-                SpinBox {
-                    id: thumb_height_spin
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: thumb_width_spin.bottom
-                    inputMethodHints: Qt.ImhDigitsOnly
-                    value: AppSettings.thumb_height
-                    stepSize: 50
-                    from: 10
-                    to: 4096
-                    onValueModified: {
-                        AppSettings.thumb_height = value
-                        AppSettings.recreate_thumbs = true
-                    }
-                }
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: thumb_height_spin.bottom
-                    text: AppSettings.recreate_thumbs
-                }
-                ScrollBar {
-                    id: button_offset_scrollbar
-                    // anchors.verticalCenter: parent.verticalCenter
-                    y: 0
-                    height: parent.height
-                    width: parent.width / 8
-                    anchors.right: parent.right
-                    policy: ScrollBar.AlwaysOn
-                    visible: true
-                    position: (AppSettings.button_offset - 1) * -1.0
-                    onPositionChanged: {
-                        AppSettings.button_offset = (position - 1.0) * -1.0
-                    }
-                }
-            }
-        }
-    }
-    SequentialAnimation {
-        id: animation_out
-        // NumberAnimation {
-        //     target: menu_bar
-        //     property: "y"
-        //     to: mainWindow.height
-        //     duration: 500
-        // }
-        NumberAnimation {
-            target: menu_bar
-            property: "not_hidden"
-            to: 0
-            duration: 500
-        }
-    }
-    SequentialAnimation {
-        id: animation_in
-        // NumberAnimation {
-        //     target: menu_bar
-        //     property: "y"
-        //     to: mainWindow.height - menu_bar.height - 5
-        //     duration: 500
-        // }
-        NumberAnimation {
-            target: menu_bar
-            property: "not_hidden"
-            to: 1
-            duration: 500
+        ConfigDrawer {
+            id: configDrawer
         }
     }
 
@@ -203,6 +124,14 @@ Window {
         TabButton {
             text: qsTr("Settings")
             width: implicitWidth
+            onClicked: {
+                if (configDrawer.opened){
+                    configDrawer.close()
+                }
+                else{
+                    configDrawer.open()
+                }
+            }
         }
         // TabButton{
         //     text: qsTr("FolderList")

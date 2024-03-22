@@ -108,7 +108,7 @@ Rectangle {
             Rectangle {
                 id: cell_item
                 property bool isSelected: false
-                color: (isSelected) ? palette.highlight : Constants.backgroundColor
+                color: (isSelected) ? palette.accent : Constants.backgroundColor
 
                 width: folder_list_thumbnail_grid.cellWidth
                 height: folder_list_thumbnail_grid.cellHeight

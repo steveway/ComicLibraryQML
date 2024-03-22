@@ -17,6 +17,7 @@ qt6_add_qml_module(content
         Screen01.qml
         Screen02.qml
         Screen04.qml
+        ConfigDrawer.qml
     RESOURCES
         fonts/fonts.txt
         peruse.ico

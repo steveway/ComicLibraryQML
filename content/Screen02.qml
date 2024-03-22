@@ -145,8 +145,92 @@ Rectangle {
     }
 
     Column {
+        id: left_handed_layout
+        visible: (AppSettings.selected_layout === "Left Handed")
+        x: 5
+        y: (menu_bar.y - menu_bar.height - height - 5) - (menu_bar.y * AppSettings.button_offset)
+        width: rectangle.width - 10
+        height: 128 * 2
+        spacing: 0
+
+        Item {
+            id: button_layout_left
+            width: left_handed_layout.width
+            height: left_handed_layout.height
+            Button {
+                id: prev_page_left
+                text: "←"
+                anchors.left: button_layout_left.left
+                anchors.top: button_layout_left.top
+                // anchors.bottom: next_page_one.top
+                font.pixelSize: parent.height / 4
+
+                Connections {
+                    target: prev_page_left
+                    onClicked: {
+                        left_handed_layout.opacity = 1
+                        if (pdf_view.currentPage > 0) {
+                            pdf_view.goToPage(pdf_view.currentPage - 1)
+                        }
+                        fade_out_buttons_left.start()
+                    }
+                }
+            }
+            Button {
+                id: scale_width_left
+                objectName: "scale_width_left"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: button_layout_left.bottom
+                text: (scale_width_left.checked) ? "-" : "⛶"
+                font.pixelSize: parent.height / 4
+                checkable: true
+                Connections {
+                    target: scale_width_left
+                    onClicked: {
+                        left_handed_layout.opacity = 1
+                        if (scale_width_left.checked) {
+                            pdf_view.scaleToWidth(pdf_view.width - 100,
+                                pdf_view.height - 100)
+                            //scale_width.text = "-"
+                        } else {
+                            pdf_view.scaleToPage(pdf_view.width - 100,
+                                pdf_view.height - 100)
+                            //scale_width.text = "⛶"
+                        }
+                        fade_out_buttons_left.start()
+                    }
+                }
+            }
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: scale_width_left.top
+                width: left_handed_layout.width
+                text: pdf_document.pageCount + " / " + pdf_view.currentPage
+                horizontalAlignment: Text.AlignHCenter
+            }
+            Button {
+                id: next_page_left
+                text: "→"
+                anchors.left: button_layout_left.left
+                anchors.bottom: button_layout_left.bottom
+                font.pixelSize: parent.height / 4
+                Connections {
+                    target: next_page_left
+                    onClicked: {
+                        left_handed_layout.opacity = 1
+                        if (pdf_view.currentPage < pdf_document.pageCount - 1) {
+                            pdf_view.goToPage(pdf_view.currentPage + 1)
+                        }
+                        fade_out_buttons_left.start()
+                    }
+                }
+            }
+        }
+    }
+
+    Column {
         id: one_handed_layout
-        visible: (AppSettings.selected_layout === "One Handed")
+        visible: (AppSettings.selected_layout === "Right Handed")
         x: 5
         y: (menu_bar.y - menu_bar.height - height - 5) - (menu_bar.y * AppSettings.button_offset)
         width: rectangle.width - 10
@@ -267,5 +351,15 @@ Rectangle {
             duration: 5000
         }
     }
+    SequentialAnimation {
+        id: fade_out_buttons_left
+        NumberAnimation {
+            target: left_handed_layout
+            property: "opacity"
+            to: 0.2
+            duration: 5000
+        }
+    }
+
 
 }
