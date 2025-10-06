@@ -4,13 +4,10 @@ import QtQuick.Dialogs
 import CLC
 
 Window {
-    width: Constants.width
-    height: Constants.height
-/*
     width: AppSettings.windowWidth
     height: AppSettings.windowHeight
     x: AppSettings.windowX
-    y: AppSettings.windowY*/
+    y: AppSettings.windowY
     property Animation animationIn: SequentialAnimation {
         // Define your animationIn here
         id: animation_in

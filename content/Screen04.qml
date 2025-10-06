@@ -21,10 +21,52 @@ Rectangle {
     width: Constants.width
     height: Constants.height
     color: Constants.backgroundColor
+
+    onVisibleChanged: {
+        if (visible && loadingFinished && selectedBook) {
+            ensureSelectedBookVisible.start()
+        }
+    }
+
     onLoadingFinishedChanged: {
+        if (loadingFinished) {
+            // Hide menu bar when loading is complete
+            animationOut.start()
+        }
         if (AppSettings.lastComicIndex){
             //folder_list_thumbnail_grid.positionViewAtIndex(destinedIndex, GridView.Visible)
             destinedIndex = folderModel.indexOf(AppSettings.lastComic)
+        }
+    }
+    
+    // Reset recreate_thumbs flag after a delay to allow visible items to regenerate
+    Timer {
+        id: resetRegenerateFlag
+        interval: 1000
+        running: false
+        onTriggered: {
+            AppSettings.recreate_thumbs = false
+        }
+    }
+    
+    Connections {
+        target: AppSettings
+        function onRecreate_thumbsChanged() {
+            if (AppSettings.recreate_thumbs) {
+                resetRegenerateFlag.restart()
+            }
+        }
+    }
+
+    Timer {
+        id: ensureSelectedBookVisible
+        interval: 100
+        running: false
+        repeat: false
+        onTriggered: {
+            if (selectedBook && AppSettings.lastComicIndex !== undefined) {
+                folder_list_thumbnail_grid.positionViewAtIndex(AppSettings.lastComicIndex, GridView.Center)
+            }
         }
     }
 
@@ -70,11 +112,19 @@ Rectangle {
         id: folder_list_thumbnail_grid
         enabled: false
         x: parent.width / (AppSettings.thumb_width * 2)
-        y: parent.height / (AppSettings.thumb_heigth * 2)
+        y: parent.height / (AppSettings.thumb_height * 2)
         width: parent.width - (parent.width / AppSettings.thumb_width)
         height: menu_bar.y - menu_bar.height
         visible: true
         objectName: "folder_thumbnail_list"
+        
+        // Performance optimizations
+        cacheBuffer: cellHeight * 3
+        reuseItems: loadingFinished  // Only reuse items after initial load
+        
+        // Update layout when thumbnail size changes
+        onCellWidthChanged: Qt.callLater(folder_list_thumbnail_grid.forceLayout)
+        onCellHeightChanged: Qt.callLater(folder_list_thumbnail_grid.forceLayout)
 
         model: FolderListModel {
             // Empty model initially
@@ -108,7 +158,20 @@ Rectangle {
             Rectangle {
                 id: cell_item
                 property bool isSelected: false
+                property bool isHovered: false
+                property bool needsRegeneration: false
+                property bool isRegenerating: false
                 color: (isSelected) ? palette.accent : Constants.backgroundColor
+                border.width: isHovered ? 2 : (isRegenerating ? 3 : 0)
+                border.color: isRegenerating ? "orange" : palette.highlight
+                
+                Behavior on border.width {
+                    NumberAnimation { duration: 150 }
+                }
+                
+                Behavior on border.color {
+                    ColorAnimation { duration: 150 }
+                }
 
                 width: folder_list_thumbnail_grid.cellWidth
                 height: folder_list_thumbnail_grid.cellHeight
@@ -132,26 +195,43 @@ Rectangle {
                 ColumnLayout {
                     //border.color: "black"
                     anchors.fill: cell_item
-
+                    
+                    Connections {
+                        target: AppSettings
+                        function onRecreate_thumbsChanged() {
+                            if (AppSettings.recreate_thumbs) {
+                                cell_item.needsRegeneration = true
+                                // Regenerate all items in view
+                                thumbnail_generator.restart()
+                            }
+                        }
+                    }
+                    
+                    // Regenerate when item becomes visible
+                    Connections {
+                        target: cell_item
+                        function onVisibleChanged() {
+                            if (cell_item.visible && cell_item.needsRegeneration) {
+                                thumbnail_generator.restart()
+                            }
+                        }
+                    }
 
                     Timer {
                         id: thumbnail_generator
                         objectName: "thumbnail_generator"
-                        interval: 0
+                        interval: 50  // Small delay to let UI update
                         running: false
                         repeat: false
                         onTriggered: {
-                            console.log("Trying to generate:")
-                            console.log(thumbnail_path)
-                            console.log(AppSettings.recreate_thumbs)
-                            console.log(fileio.does_file_exist(thumbnail_path))
-                            console.log((!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs))
-                            if (!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs) {
+                            if (!fileio.does_file_exist(thumbnail_path) || cell_item.needsRegeneration) {
+                                cell_item.isRegenerating = true
+                                thumb_image.opacity = 0.5
                                 fileio.create_thumbnail(pdf_file, thumbnail_path,
                                                         thumb_image.height)
+                                set_thumb_path.start()
+                                cell_item.needsRegeneration = false
                             }
-                            progress_bar.to = folderModel.count
-                            progress_bar.value = progress_bar.value + 1
                         }
                     }
 
@@ -160,11 +240,39 @@ Rectangle {
                         interval: 250
                         running: false
                         repeat: true
+                        property int retryCount: 0
                         onTriggered: {
                             if(fileio.does_file_exist(thumbnail_path)){
-                                thumb_image.source = thumbnail_path
+                                // Force complete reload by clearing source and waiting
+                                thumb_image.source = ""
+                                reloadTimer.start()
                                 set_thumb_path.stop()
+                                retryCount = 0
+                            } else {
+                                retryCount++
+                                if (retryCount > 20) {  // Stop after 5 seconds
+                                    set_thumb_path.stop()
+                                    cell_item.isRegenerating = false
+                                    retryCount = 0
+                                }
                             }
+                        }
+                    }
+                    
+                    Timer {
+                        id: reloadTimer
+                        interval: 100
+                        running: false
+                        repeat: false
+                        onTriggered: {
+                            // Force Qt to reload the image from disk
+                            var path = thumbnail_path
+                            thumb_image.source = path
+                            // Trigger layout recalculation
+                            thumb_image.sourceSize.width = 0
+                            thumb_image.sourceSize.height = 0
+                            thumb_image.opacity = 1.0
+                            cell_item.isRegenerating = false
                         }
                     }
 
@@ -178,25 +286,16 @@ Rectangle {
                                 cell_item.isSelected = true
                             }
                         }
-                        thumbnail_generator.start()
                         json_data = read_progress_from_file(conf_file)
-                        progress_bar.to = folderModel.count
-                        progress_bar.value = progress_bar.value + 1
-                        if (!fileio.does_file_exist(thumbnail_path) || AppSettings.recreate_thumbs) {
-                            fileio.create_thumbnail(pdf_file, thumbnail_path,
-                                                    thumb_image.height)
-                        }
+                        thumbnail_generator.start()
                         thumb_image.source = thumbnail_path
-                        //fileio.updateUI()
+                        
                         if (scrollindex < folder_list_thumbnail_grid.count){
                             scrollindex = scrollindex + 1
                             folder_list_thumbnail_grid.positionViewAtIndex(scrollindex, GridView.Visible)
-                            // fileio.updateUI()
                         }
                         else{
                             folder_list_thumbnail_grid.enabled = true
-                            grey_overlay.enabled = false
-                            grey_overlay.visible = false
                             loadingFinished = true
                             AppSettings.recreate_thumbs = false
                         }
@@ -204,16 +303,29 @@ Rectangle {
                     Image {
                         id: thumb_image
                         Layout.preferredHeight: cell_item.height /  1.5625
-                        //width: cell_item.width
-                        // y: 0
+                        Layout.preferredWidth: cell_item.width
                         fillMode: Image.PreserveAspectFit
                         asynchronous: true
-                        //anchors.horizontalCenter: parent.horizontalCenter
+                        cache: false  // Disable cache to allow reload
+                        smooth: true
+                        opacity: cell_item.isRegenerating ? 0.5 : (thumb_click.containsMouse ? 0.8 : 1.0)
                         Layout.alignment: Qt.AlignHCenter
-                        //source: thumbnail_path
+                        
+                        // Force image to use source size when available
+                        sourceSize.width: 0
+                        sourceSize.height: 0
+                        
+                        Behavior on opacity {
+                            NumberAnimation { duration: 300 }
+                        }
+                        
                         MouseArea {
                             id: thumb_click
                             anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onEntered: cell_item.isHovered = true
+                            onExited: cell_item.isHovered = false
                             onClicked: {
                                 if(selectedBook){
                                     selectedBook.isSelected = false
@@ -287,14 +399,13 @@ Rectangle {
             parent: folder_list_thumbnail_grid
             anchors.right: folder_list_thumbnail_grid.right
         }
-        Rectangle {
-            id: grey_overlay
-            width: folder_rectangle.width
-            height: folder_rectangle.height
-            x: folder_rectangle.x
-            y: folder_rectangle.y
-            color: "grey"
-            opacity: 0.5
+        BusyIndicator {
+            id: loading_indicator
+            anchors.centerIn: parent
+            running: !loadingFinished
+            visible: !loadingFinished
+            width: 64
+            height: 64
         }
     }
 

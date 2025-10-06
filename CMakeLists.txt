@@ -15,7 +15,7 @@ elseif(DEFINED ENV{QT_PREFIX_PATH})
     set(CMAKE_PREFIX_PATH $ENV{QT_PREFIX_PATH})
 endif()
 
-find_package(Qt6 6.9.1 REQUIRED COMPONENTS Core Gui Qml Quick Pdf Widgets)
+find_package(Qt6 6.9.1 REQUIRED COMPONENTS Core Gui Qml Quick Pdf Widgets Concurrent)
 
 if (Qt6_VERSION VERSION_GREATER_EQUAL 6.3)
     qt_standard_project_setup()
@@ -52,6 +52,7 @@ target_link_libraries(CLCApp PRIVATE
     Qt6::Quick
     Qt6::Pdf
     Qt6::Widgets
+    Qt6::Concurrent
     SingleApplication::SingleApplication
 )
 

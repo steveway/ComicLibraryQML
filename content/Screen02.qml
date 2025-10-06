@@ -34,6 +34,9 @@ Rectangle {
     PdfMultiPageView {
         objectName: "pdf_view"
 
+        property real savedContentY: 0
+        property real savedContentX: 0
+
         onCurrentPageChanged: {
 
             /^(file:\/+|qrc:\/+|http:\/+)(?=[A-Z])(?=[^:])|^(file:\/+|qrc:\/+|http:\/+)(?=(\/|$))/
@@ -59,6 +62,26 @@ Rectangle {
             id: pdf_document
             source: "../books/my.pdf"
             objectName: "pdf_document"
+        }
+
+        function savePosition() {
+            savedContentY = contentY
+            savedContentX = contentX
+        }
+
+        function restorePositionDelayed() {
+            restorePositionTimer.start()
+        }
+
+        Timer {
+            id: restorePositionTimer
+            interval: 50
+            running: false
+            repeat: false
+            onTriggered: {
+                pdf_view.contentY = pdf_view.savedContentY
+                pdf_view.contentX = pdf_view.savedContentX
+            }
         }
     }
     Column {
@@ -112,6 +135,7 @@ Rectangle {
                     target: scale_width
                     onClicked: {
                         overlay_layout.opacity = 1
+                        pdf_view.savePosition()
                         if (scale_width.checked) {
                             pdf_view.scaleToWidth(pdf_view.width - 100,
                                                   pdf_view.height - 100)
@@ -121,6 +145,7 @@ Rectangle {
                                                  pdf_view.height - 100)
                             //scale_width.text = "⛶"
                         }
+                        pdf_view.restorePositionDelayed()
                         fade_out_buttons.start()
                     }
                 }
@@ -188,6 +213,7 @@ Rectangle {
                     target: scale_width_left
                     onClicked: {
                         left_handed_layout.opacity = 1
+                        pdf_view.savePosition()
                         if (scale_width_left.checked) {
                             pdf_view.scaleToWidth(pdf_view.width - 100,
                                 pdf_view.height - 100)
@@ -197,6 +223,7 @@ Rectangle {
                                 pdf_view.height - 100)
                             //scale_width.text = "⛶"
                         }
+                        pdf_view.restorePositionDelayed()
                         fade_out_buttons_left.start()
                     }
                 }
@@ -272,6 +299,7 @@ Rectangle {
                     target: scale_width_one
                     onClicked: {
                         one_handed_layout.opacity = 1
+                        pdf_view.savePosition()
                         if (scale_width_one.checked) {
                             pdf_view.scaleToWidth(pdf_view.width - 100,
                                 pdf_view.height - 100)
@@ -281,6 +309,7 @@ Rectangle {
                                 pdf_view.height - 100)
                             //scale_width.text = "⛶"
                         }
+                        pdf_view.restorePositionDelayed()
                         fade_out_buttons_one.start()
                     }
                 }
